@@ -1,6 +1,6 @@
 {
-    "name": "php-tui/term",
-    "description": "comprehensive low level terminal control",
+    "name": "php-tui/cli-parser",
+    "description": "Type-safe CLI parser",
     "type": "library",
     "license": "MIT",
     "autoload": {

@@ -8,9 +8,9 @@ final class Command
      * @param array<int,Argument> $arguments
      */
     public function __construct(
-        string $name,
-        array $arguments,
-        array $options,
+        public readonly string $name,
+        public readonly array $arguments,
+        public readonly array $options,
     ) {
     }
 

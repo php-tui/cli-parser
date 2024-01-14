@@ -12,7 +12,6 @@ use PhpTui\CliParser\Type\StringType;
 use PhpTui\CliParser\Type\Type;
 use PhpTui\CliParser\Type\TypeFactory;
 use PhpTui\CliParser\Type\UnionType;
-use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionType;
 
@@ -39,7 +38,9 @@ final class TypeFactoryTest extends TestCase
         yield 'string => string' => [
             function () {
                 return (new ReflectionProperty(
-                    new class {public string $foo;},
+                    new class {
+                        public string $foo;
+                    },
                     'foo'
                 ))->getType();
             },
@@ -49,7 +50,9 @@ final class TypeFactoryTest extends TestCase
         yield 'union => union' => [
             function () {
                 return (new ReflectionProperty(
-                    new class {public string|int $foo;},
+                    new class {
+                        public string|int $foo;
+                    },
                     'foo'
                 ))->getType();
             },
