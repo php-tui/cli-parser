@@ -12,8 +12,7 @@ final class Opt
         public readonly ?string $short = null,
         public readonly ?string $long = null,
         public readonly ?string $help = null
-    )
-    {
+    ) {
     }
 
 }
