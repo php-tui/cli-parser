@@ -18,4 +18,9 @@ final class UnionType implements Type
     {
         return implode('|', array_map(fn (Type $type) => $type->toString(), $this->types));
     }
+
+    public function parse(string $value): mixed
+    {
+        return $value;
+    }
 }

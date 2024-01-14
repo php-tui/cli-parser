@@ -30,4 +30,15 @@ final class Command implements ArgumentLike
         return array_filter($this->arguments, fn (ArgumentLike $a) => $a instanceof Argument);
     }
 
+    /**
+     * @return array<string,Option>
+     */
+    public function optionsKeyedByCliName(): array
+    {
+        return array_combine(array_map(
+            fn (Option $option) => $option->parseName,
+            $this->options
+        ), array_values($this->options));
+    }
+
 }

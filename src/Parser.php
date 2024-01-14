@@ -26,12 +26,43 @@ final class Parser
         }
 
         $script = array_shift($args);
+
         $arguments = [];
+        $optionsToParse = [];
+        $shortOptions = [];
+
+        foreach ($args as $arg) {
+            if (substr($arg, 0, 1) !== '-') {
+                $arguments[] = $arg;
+                continue;
+            }
+
+            if (substr($arg, 1, 1) === '-') {
+                $optionsToParse[substr($arg, 2, strpos($arg, '=') - 2)] = $arg;
+                continue;
+            }
+
+            $shortOptions[substr($arg, 1)] = $arg;
+        }
 
         $cmd = $this->loader->load($target);
 
         foreach ($cmd->arguments as $param) {
-            $target->{$param->name} = array_shift($args);
+            $target->{$param->name} = array_shift($arguments);
+        }
+
+        $cliOptions = $cmd->optionsKeyedByCliName();
+
+        foreach ($optionsToParse as $name => $optionValue) {
+            if (!isset($cliOptions[$name])) {
+                throw new RuntimeException(sprintf(
+                    'Unknown CLI option "%s", known options: "%s"',
+                    $name,
+                    array_keys($cliOptions)
+                ));
+            }
+            $option = $cliOptions[$name];
+            $target->{$option->name} = $option->type->parse($optionValue);
         }
     }
 }

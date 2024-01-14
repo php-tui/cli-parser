@@ -2,10 +2,18 @@
 
 namespace PhpTui\CliParser\Type;
 
-class IntegerType implements Type
+/**
+ * @implements Type<int>
+ */
+final class IntegerType implements Type
 {
     public function toString(): string
     {
         return 'integer';
+    }
+
+    public function parse(string $value): mixed
+    {
+        return intval($value);
     }
 }
