@@ -2,10 +2,21 @@
 
 namespace PhpTui\CliParser\Metadata;
 
+use PhpTui\CliParser\Type\Type;
+
 final class Option
 {
-    public function __construct(public readonly string $name)
+    public readonly string $parseName;
+
+    public function __construct(
+        public readonly string $name,
+        public readonly Type $type,
+        ?string $parseName = null,
+        public readonly ?string $short = null,
+        public readonly ?string $help = null,
+    )
     {
+        $this->parseName = $parseName ?: $name;
     }
 
 }

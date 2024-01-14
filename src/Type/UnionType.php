@@ -13,4 +13,9 @@ final class UnionType implements Type
     {
         $this->types = $types;
     }
+
+    public function toString(): string
+    {
+        return implode('|', array_map(fn (Type $type) => $type->toString(), $this->types));
+    }
 }

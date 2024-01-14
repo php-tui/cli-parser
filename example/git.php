@@ -1,14 +1,20 @@
 <?php
 
-use PhpTui\Term\Attribute\Arg;
-use PhpTui\Term\Attribute\Opt;
+require __DIR__ . '/../vendor/autoload.php';
+
+use PhpTui\CliParser\Attribute\Cmd;
+use PhpTui\CliParser\Attribute\Opt;
+use PhpTui\CliParser\Attribute\Arg;
+use PhpTui\CliParser\Loader;
+use PhpTui\CliParser\Parser;
+use PhpTui\CliParser\Printer\AsciiPrinter;
 
 class GitArgs {
 
-    #[Arg(help: 'Clone a repository into a new directory')]
+    #[Cmd(help: 'Clone a repository into a new directory')]
     public GitCloneArgs $clone;
 
-    #[Arg(help: 'Create an empty git repository')]
+    #[Cmd(help: 'Create an empty git repository')]
     public GitInitArgs $init;
 
     #[Opt(short: 'v', long: 'version', help: 'Create an empty git repository')]
@@ -18,10 +24,18 @@ class GitArgs {
     public bool $help;
 
     #[Opt(short: 'C', help: 'Run git as ig it were executed in this path')]
-    public bool $cwd;
+    public string $cwd;
 }
 
 class GitCloneArgs {
+    #[Arg(help: 'Repository to clone')]
+    public string $repo;
+
+    #[Opt(name: 'recurse-submodules', short: 'R', help: 'Initialize submodules in the clone')]
+    public string $recurseSubModules;
+}
+
+class GitInitArgs {
     #[Arg(help: 'Repository to clone')]
     public string $repo;
 
@@ -29,5 +43,8 @@ class GitCloneArgs {
     public string $recurseSubModules;
 }
 
-class GitInitArgs {
-}
+$cli = new GitArgs();
+$cli->init = new GitInitArgs();
+$cli->clone = new GitCloneArgs();
+
+echo (new AsciiPrinter())->print((new Loader())->load($cli));

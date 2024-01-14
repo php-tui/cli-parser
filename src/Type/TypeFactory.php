@@ -34,6 +34,7 @@ final class TypeFactory
         return match ($type->getName()) {
             'string' => new StringType(),
             'int' => new IntegerType(),
+            'bool' => new BooleanType(),
             default => throw new RuntimeException(sprintf(
                 'Do not know how to parse type "%s"',
                 $type->getName()

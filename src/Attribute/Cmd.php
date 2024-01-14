@@ -5,12 +5,11 @@ namespace PhpTui\CliParser\Attribute;
 use Attribute;
 
 #[Attribute]
-final class Arg
+final class Cmd
 {
     public function __construct(
         public readonly ?string $name = null,
         public readonly ?string $help = null,
     ) {
     }
-
 }

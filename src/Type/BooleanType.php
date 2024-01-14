@@ -2,10 +2,10 @@
 
 namespace PhpTui\CliParser\Type;
 
-final class MixedType implements Type
+class BooleanType implements Type
 {
     public function toString(): string
     {
-        return 'mixed';
+        return 'boolean';
     }
 }

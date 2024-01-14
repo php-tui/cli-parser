@@ -6,6 +6,7 @@ use Closure;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use PhpTui\CliParser\Type\BooleanType;
 use PhpTui\CliParser\Type\IntegerType;
 use PhpTui\CliParser\Type\MixedType;
 use PhpTui\CliParser\Type\StringType;
@@ -45,6 +46,18 @@ final class TypeFactoryTest extends TestCase
                 ))->getType();
             },
             new StringType(),
+        ];
+
+        yield 'bool' => [
+            function () {
+                return (new ReflectionProperty(
+                    new class {
+                        public bool $foo;
+                    },
+                    'foo'
+                ))->getType();
+            },
+            new BooleanType(),
         ];
 
         yield 'union => union' => [
