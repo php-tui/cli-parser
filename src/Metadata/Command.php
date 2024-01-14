@@ -5,7 +5,7 @@ namespace PhpTui\CliParser\Metadata;
 final class Command implements ArgumentLike
 {
     /**
-     * @param list<ArgumentLike> $arguments
+     * @param list<Argument|Command> $arguments
      * @param list<Option> $options
      */
     public function __construct(

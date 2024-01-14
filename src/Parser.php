@@ -7,6 +7,13 @@ use RuntimeException;
 
 final class Parser
 {
+    private Loader $loader;
+
+    public function __construct(Loader $loader = null)
+    {
+        $this->loader = $loader ?: new Loader();
+    }
+
     /**
      * @param string[] $args
      */
@@ -18,11 +25,13 @@ final class Parser
             );
         }
 
-        array_shift($args);
+        $script = array_shift($args);
+        $arguments = [];
 
-        $reflection = new ReflectionClass($target);
+        $cmd = $this->loader->load($target);
 
-        foreach ($reflection->getProperties() as $property) {
+        foreach ($cmd->arguments as $param) {
+            $target->{$param->name} = array_shift($args);
         }
     }
 }
