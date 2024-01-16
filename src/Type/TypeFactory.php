@@ -35,6 +35,7 @@ final class TypeFactory
             'string' => new StringType(),
             'int' => new IntegerType(),
             'bool' => new BooleanType(),
+            'float' => new FloatType(),
             default => throw new RuntimeException(sprintf(
                 'Do not know how to parse type "%s"',
                 $type->getName()

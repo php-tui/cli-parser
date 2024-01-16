@@ -2,6 +2,8 @@
 
 namespace PhpTui\CliParser;
 
+use PhpTui\CliParser\Error\ParseError;
+use PhpTui\CliParser\Type\BooleanType;
 use ReflectionClass;
 use RuntimeException;
 
@@ -37,8 +39,26 @@ final class Parser
                 continue;
             }
 
-            if (substr($arg, 1, 1) === '-') {
-                $optionsToParse[substr($arg, 2, strpos($arg, '=') - 2)] = $arg;
+            if (substr($arg, 0, 1) === '-') {
+                $nameOffset = 1;
+                if (substr($arg, 1, 1) === '-') {
+                    // long option
+                    $equalPos = strpos($arg, '=');
+                    if ($equalPos !== false) {
+                        // option with value
+                        $optionName = substr($arg, 2, $equalPos - 2);
+                        $optionValueString = substr($arg, strpos($arg, '=') + 1);
+                    } else {
+                        // boolean flag
+                        $optionName = substr($arg, 2);
+                        $optionValueString = null;
+                    }
+                } else {
+                    // short option
+                    $optionName = substr($arg, 1, 1);
+                    $optionValueString = substr($arg, 2);
+                }
+                $optionsToParse[$optionName] = $optionValueString;
                 continue;
             }
 
@@ -47,22 +67,32 @@ final class Parser
 
         $cmd = $this->loader->load($target);
 
-        foreach ($cmd->arguments as $param) {
-            $target->{$param->name} = array_shift($arguments);
+        foreach ($cmd->arguments() as $param) {
+            $argString = array_shift($arguments);
+            if (null === $argString) {
+                throw new ParseError(sprintf('Not enough arguments, need "%s"',
+                    count($cmd->arguments())
+                ));
+            }
+            $target->{$param->name} = $param->type->parse($argString);
         }
 
-        $cliOptions = $cmd->optionsKeyedByCliName();
+        $cliOptions = $cmd->optionsKeyedByName();
 
         foreach ($optionsToParse as $name => $optionValue) {
             if (!isset($cliOptions[$name])) {
                 throw new RuntimeException(sprintf(
                     'Unknown CLI option "%s", known options: "%s"',
                     $name,
-                    array_keys($cliOptions)
+                    implode('", "', array_keys($cliOptions)),
                 ));
             }
+
             $option = $cliOptions[$name];
-            $target->{$option->name} = $option->type->parse($optionValue);
+            if ($optionValue === null && !$option->type instanceof BooleanType) {
+                throw new ParseError(sprintf('Option "%s" of type "%s" must have a value', $option->parseName, $option->type->toString()));
+            }
+            $target->{$option->name} = $option->type->parse($optionValue ?? 'true');
         }
     }
 }

@@ -47,4 +47,9 @@ $cli = new GitArgs();
 $cli->init = new GitInitArgs();
 $cli->clone = new GitCloneArgs();
 
-echo (new AsciiPrinter())->print((new Loader())->load($cli));
+$cmd = (new Loader())->load($cli);
+echo (new AsciiPrinter())->print($cmd);
+
+dump($argv);
+(new Parser())->parse($cli, $argv);
+dump($cli);
