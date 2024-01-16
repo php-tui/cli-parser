@@ -74,6 +74,17 @@ final class ParserTest extends TestCase
                 self::assertEquals('foobar barfoo', $target->foobar);
             }
         ];
+        yield '[<foobar>] optional argument omitted' => [
+            function () {
+                $target = new class {
+                    #[Arg(required: false)]
+                    public string $foobar = 'bar';
+                };
+                self::parse($target, ['cmd']);
+
+                self::assertEquals('bar', $target->foobar);
+            }
+        ];
         yield 'all supported types' => [
             function () {
                 $target = new class {
