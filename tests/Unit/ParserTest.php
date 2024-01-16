@@ -6,6 +6,7 @@ use Closure;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ParseError;
 use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Parser;
@@ -83,6 +84,24 @@ final class ParserTest extends TestCase
                 self::parse($target, ['cmd']);
 
                 self::assertEquals('bar', $target->foobar);
+            }
+        ];
+        yield 'invalid [<foobar>] <barfoo> cannot have optional argument before required argument' => [
+            function () {
+                $target = new class {
+                    #[Arg(required: false)]
+                    public string $foobar;
+                    #[Arg(required: true)]
+                    public string $barfoo;
+                };
+
+                try {
+                    self::parse($target, ['cmd']);
+                } catch (ParseError $error) {
+                    self::assertStringContainsString('Required argument <barfoo> cannot be positioned after optional argument', $error->getMessage());
+                    return;
+                }
+                self::fail('Did not throw exception');
             }
         ];
         yield 'all supported types' => [
