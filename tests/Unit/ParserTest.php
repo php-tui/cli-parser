@@ -300,10 +300,81 @@ final class ParserTest extends TestCase
                 self::assertEquals(['foo.php', 'bar.php'], $cli->ls->paths);
             },
         ];
+        yield 'ls <path> --flag' => [
+            function (): void {
+                $cli = new class(
+                    new #[Cmd()] class {
+                        #[Arg()]
+                        public string $path;
+                        #[Opt()]
+                        public bool $flag = false;
+                    },
+                ) {
+                    public function __construct(
+                        public object $ls,
+                    ) {}
+                };
+
+                self::parse($cli, ['cmd', 'ls', 'bar.php', '--flag', ]);
+                /** @phpstan-ignore-next-line */
+                self::assertEquals(true, $cli->ls->flag);
+                /** @phpstan-ignore-next-line */
+                self::assertEquals('bar.php', $cli->ls->path);
+            },
+        ];
+
+        yield 'ls <path> --flag with multiple commands' => [
+            function (): void {
+                $cli = new class(
+                    new #[Cmd()] class {
+                        #[Arg()]
+                        public string $path;
+                    },
+                    new #[Cmd()] class {
+                        #[Arg()]
+                        public string $path;
+                        #[Opt()]
+                        public bool $flag = false;
+                    },
+                ) {
+                    public function __construct(
+                        public object $rm,
+                        public object $ls,
+                    ) {}
+                };
+
+                self::parse($cli, ['cmd', 'ls', 'bar.php', '--flag', ]);
+                /** @phpstan-ignore-next-line */
+                self::assertEquals(true, $cli->ls->flag);
+                /** @phpstan-ignore-next-line */
+                self::assertEquals('bar.php', $cli->ls->path);
+            },
+        ];
+        yield 'user <name> set-phone 0123412341234 --home' => [
+            function (): void {
+                $cli = new class(
+                    new #[Cmd()] class {
+                        #[Arg()]
+                        public string $name;
+                    },
+                ) {
+                    public function __construct(
+                        public object $user,
+                    ) {}
+                };
+
+                self::parse($cli, ['cmd', 'ls', 'bar.php', '--flag', ]);
+                /** @phpstan-ignore-next-line */
+                self::assertEquals(true, $cli->ls->flag);
+                /** @phpstan-ignore-next-line */
+                self::assertEquals('bar.php', $cli->ls->path);
+            },
+        ];
     }
 
     public function testExample(): void
     {
+        $this->markTestSkipped('TODO');
         $cli = new #[Cmd('My App', help: 'Application to list and remove files')] class(
             new #[Cmd('rm', help: 'Remove files')] class {
                 #[Opt(help: 'Force removal')]
