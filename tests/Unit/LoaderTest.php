@@ -129,14 +129,12 @@ final class LoaderTest extends TestCase
     {
         $this->assertRoot(
             new class {
-                #[Cmd(help: 'This is a sub-command')]
                 public ?object $subCommand = null;
-
                 public function __construct(
                     #[Opt(help: 'This is some opt help')]
                     public string $foobar = '',
                 ) {
-                    $this->subCommand = new class {
+                    $this->subCommand = new #[Cmd(help: 'This is a sub-command')] class {
                         #[Arg()]
                         public string $url;
                     };

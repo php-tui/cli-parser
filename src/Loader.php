@@ -39,10 +39,6 @@ final class Loader
                 $options[] = $this->loadOption($property, $opt);
                 continue 2;
             }
-            foreach ($property->getAttributes(Cmd::class) as $opt) {
-                $args[] = $this->loadCommand($property, $opt->newInstance(), $object->{$property->getName()});
-                continue 2;
-            }
         }
 
         return new Command(
