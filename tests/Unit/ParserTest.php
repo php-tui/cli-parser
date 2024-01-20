@@ -51,8 +51,8 @@ final class ParserTest extends TestCase
         yield '...<foobar> variadic argument' => [
             function (): void {
                 $target = new class {
-                    #[Arg(many: true)]
-                    public ?array $foobars = [];
+                    #[Arg()]
+                    public array $foobars = [];
                 };
                 self::parse($target, ['cmd', 'foobar', 'barfoo']);
 
