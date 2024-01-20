@@ -11,6 +11,7 @@ use PhpTui\CliParser\Metadata\Option;
 use PhpTui\CliParser\Type\TypeFactory;
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionObject;
 use ReflectionProperty;
 use RuntimeException;
 
@@ -20,15 +21,23 @@ final class Loader
 
     public function load(object $object): Command
     {
-        return $this->loadCommand(null, null, $object);
+        return $this->loadCommand($object);
     }
 
-    private function loadCommand(?ReflectionProperty $parentProperty, ?Cmd $attr, object $object): Command
+    private function loadCommand(object $object): Command
     {
-        $reflection = new ReflectionClass($object);
+        $reflection = new ReflectionObject($object);
 
         $args = [];
         $options = [];
+        $name = null;
+        $help = null;
+
+        foreach ($reflection->getAttributes(Cmd::class) as $attribute) {
+            $cmd = $attribute->newInstance();
+            $name = $cmd->name;
+            $help = $cmd->help;
+        }
 
         foreach ($reflection->getProperties() as $property) {
             foreach ($property->getAttributes(Arg::class) as $arg) {
@@ -42,10 +51,10 @@ final class Loader
         }
 
         return new Command(
-            name: $parentProperty?->getName() ?? self::ROOT_NAME,
+            name: $name ?? self::ROOT_NAME,
             arguments: $args,
             options: $options,
-            help: $attr?->help,
+            help: $help,
         );
     }
 

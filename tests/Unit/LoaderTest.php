@@ -128,7 +128,7 @@ final class LoaderTest extends TestCase
     public function testSubCommand(): void
     {
         $this->assertRoot(
-            new class {
+            new #[Cmd(help: 'This is the main command')] class {
                 public ?object $subCommand = null;
                 public function __construct(
                     #[Opt(help: 'This is some opt help')]
@@ -140,6 +140,7 @@ final class LoaderTest extends TestCase
                     };
                 }
             },
+            help: 'This is the main command',
             arguments: [
                 new Command(
                     name: 'subCommand',
@@ -163,12 +164,13 @@ final class LoaderTest extends TestCase
      * @param array<int,Argument|Command> $arguments
      * @param array<int,Option> $options
      */
-    private function assertRoot(object $target, array $arguments = [], array $options = []): void
+    private function assertRoot(object $target, array $arguments = [], array $options = [], ?string $help = null): void
     {
         self::assertEquals(new Command(
             name: Loader::ROOT_NAME,
             arguments: $arguments,
             options: $options,
+            help: $help,
         ), $this->load($target));
     }
 
