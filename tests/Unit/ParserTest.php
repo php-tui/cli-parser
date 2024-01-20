@@ -282,7 +282,7 @@ final class ParserTest extends TestCase
                 $cli = new class(
                     new #[Cmd()] class {
                         #[Opt()]
-                        public bool $flag;
+                        public bool $flag = false;
                         /** @var list<string> */
                         #[Arg()]
                         public array $paths = [];

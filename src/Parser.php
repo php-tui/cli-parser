@@ -74,6 +74,7 @@ final class Parser
             }
 
             $target->{$param->name} = $param->type->parse($argString);
+            unset($args[array_search($param->name, $args)]);
             if ($param->required === false) {
                 $firstOptional = $param;
             }
@@ -83,18 +84,14 @@ final class Parser
 
         foreach ($optionsToParse as $name => $optionValue) {
             if (!isset($cliOptions[$name])) {
-                throw new RuntimeException(sprintf(
-                    'Unknown CLI option "%s" on command "%s", known options: "%s"',
-                    $name,
-                    $cmd->name,
-                    implode('", "', array_keys($cliOptions)),
-                ));
+                continue;
             }
 
             $option = $cliOptions[$name];
             if ($optionValue === null && !$option->type instanceof BooleanType) {
                 throw new ParseError(sprintf('Option "%s" of type "%s" must have a value', $option->parseName, $option->type->toString()));
             }
+            unset($args[array_search($option->name, $args)]);
             $target->{$option->name} = $option->type->parse($optionValue ?? 'true');
         }
 
@@ -106,13 +103,17 @@ final class Parser
 
         $nextCommand = $cmd->getCommand($nextCommandName);
         if ($nextCommand) {
-            $this->parse($target->{$nextCommand->name}, [$nextCommand, ...$arguments]);
+            $this->parse($target->{$nextCommand->name}, $args);
             return;
         }
 
         throw new ParseError(sprintf('Superflous argument with value "%s" provided', $nextCommandName));
     }
 
+    /**
+     * @return array{list<string>,array<string,?string>}
+     * @param list<string> $args
+     */
     private function parseArguments(array $args): array
     {
         $arguments = [];
