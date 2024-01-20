@@ -21,21 +21,21 @@ final class Loader
 
     public function load(object $object): Command
     {
-        return $this->loadCommand($object);
+        return $this->loadCommand($object, null);
     }
 
-    private function loadCommand(object $object): Command
+    private function loadCommand(object $object, ?ReflectionProperty $parent): Command
     {
         $reflection = new ReflectionObject($object);
 
         $args = [];
         $options = [];
-        $name = null;
+        $name = $parent?->getName();
         $help = null;
 
         foreach ($reflection->getAttributes(Cmd::class) as $attribute) {
             $cmd = $attribute->newInstance();
-            $name = $cmd->name;
+            $name = $cmd->name ?? $name;
             $help = $cmd->help;
         }
 
@@ -47,6 +47,10 @@ final class Loader
             foreach ($property->getAttributes(Opt::class) as $opt) {
                 $options[] = $this->loadOption($property, $opt);
                 continue 2;
+            }
+            $subCmd = $property->getValue($object);
+            if (is_object($subCmd)) {
+                $args[] = $this->loadCommand($subCmd, $property);
             }
         }
 
