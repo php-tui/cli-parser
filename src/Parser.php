@@ -3,6 +3,7 @@
 namespace PhpTui\CliParser;
 
 use PhpTui\CliParser\Error\ParseError;
+use PhpTui\CliParser\Metadata\Command;
 use PhpTui\CliParser\Type\BooleanType;
 use PhpTui\CliParser\Type\ListType;
 use RuntimeException;
@@ -88,6 +89,7 @@ final class Parser
 
             if ($param->type instanceof ListType) {
                 $target->{$param->name} = $arguments;
+                $arguments = [];
                 $firstList = $param;
                 continue;
             }
@@ -104,6 +106,7 @@ final class Parser
 
                 continue;
             }
+
             $target->{$param->name} = $param->type->parse($argString);
             if ($param->required === false) {
                 $firstOptional = $param;
@@ -127,5 +130,19 @@ final class Parser
             }
             $target->{$option->name} = $option->type->parse($optionValue ?? 'true');
         }
+
+        $nextCommandName = array_shift($arguments);
+
+        if (null === $nextCommandName) {
+            return;
+        }
+
+        $nextCommand = $cmd->getCommand($nextCommandName);
+        if ($nextCommand) {
+            $this->parse($target->{$nextCommand->name}, $args);
+            return;
+        }
+
+        throw new ParseError(sprintf('Superflous argument with value "%s" provided', $nextCommandName));
     }
 }

@@ -27,7 +27,10 @@ final class Command implements ArgumentLike
      */
     public function arguments(): array
     {
-        return array_filter($this->arguments, fn (ArgumentLike $a) => $a instanceof Argument);
+        return array_filter(
+            $this->arguments,
+            fn (ArgumentLike $a) => $a instanceof Argument
+        );
     }
 
     /**
@@ -62,6 +65,17 @@ final class Command implements ArgumentLike
             fn (Option $option) => (string)$option->short,
             $shortOptions,
         ), array_values($shortOptions));
+    }
+
+    public function getCommand(string $name):?Command
+    {
+        foreach ($this->commands() as $command) {
+            if ($command->name === $name) {
+                return $command;
+            }
+        }
+
+        return null;
     }
 
 }
