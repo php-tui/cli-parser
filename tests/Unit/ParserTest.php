@@ -48,17 +48,22 @@ final class ParserTest extends TestCase
                 self::assertEquals('barfoo', $target->barfoo);
             }
         ];
+        yield '...<foobar> variadic argument' => [
+            function (): void {
+                $target = new class {
+                    #[Arg(many: true)]
+                    public ?array $foobars = [];
+                };
+                self::parse($target, ['cmd', 'foobar', 'barfoo']);
+
+                self::assertEquals(['foobar', 'barfoo'], $target->foobars);
+            }
+        ];
         yield '<foobar> <barfoo> --options=<value>' => [
             function (): void {
                 $target = new class {
-                    #[Arg()]
-                    public ?string $foobar = null;
-
-                    #[Opt()]
-                    public ?string $option = null;
-
-                    #[Arg()]
-                    public ?string $barfoo = null;
+                    #[Arg(many: true)]
+                    public ?array $foobars = [];
                 };
                 self::parse($target, ['cmd', 'foobar', '--option=foo', 'barfoo']);
 
