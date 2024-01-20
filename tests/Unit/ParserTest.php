@@ -16,6 +16,7 @@ final class ParserTest extends TestCase
 {
     #[DataProvider('provideArguments')]
     #[DataProvider('provideOptions')]
+    #[DataProvider('provideNestedCommands')]
     public function testParse(Closure $test): void
     {
         $test();
@@ -225,6 +226,32 @@ final class ParserTest extends TestCase
                 self::parse($target, ['cmd', '-ghello world']);
 
                 self::assertSame('hello world', $target->greeting);
+            },
+        ];
+    }
+
+    /**
+     * @return Generator<string,array{Closure():void}>
+     */
+    public static function provideNestedCommands(): Generator
+    {
+        yield 'ls <path> ...' => [
+            function (): void {
+                $cli = new class(
+                    new #[Cmd()] class {
+                        /** @var list<string> */
+                        #[Arg()]
+                        public array $paths = [];
+                    },
+                ) {
+                    public function __construct(
+                        public object $ls,
+                    ) {}
+                };
+
+                self::parse($cli, ['cmd', 'ls', 'foo.php', 'bar.php']);
+                /** @phpstan-ignore-next-line */
+                self::assertEquals(['foo.php', 'bar.php'], $cli->ls->paths);
             },
         ];
     }
