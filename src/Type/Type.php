@@ -3,7 +3,7 @@
 namespace PhpTui\CliParser\Type;
 
 /**
- * @template TParseType
+ * @template-covariant TParseType
  */
 interface Type
 {

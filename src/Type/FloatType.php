@@ -3,7 +3,7 @@
 namespace PhpTui\CliParser\Type;
 
 /**
- * @implements Type<int>
+ * @implements Type<float>
  */
 final class FloatType implements Type
 {

@@ -48,15 +48,15 @@ final class AsciiPrinterTest extends TestCase
         );
 
         self::assertEquals(<<<'EOT'
-root <path> [--change-directory|-c]
+            root <path> [--change-directory|-c]
 
-Options:
+            Options:
 
-  -c, --change-directory  Change the directory to another one (integer)
+              -c, --change-directory  Change the directory to another one (integer)
 
-Commands:
+            Commands:
 
-  operate [--left]
-EOT, str_replace("\t", ' ', $printed));
+              operate [--left]
+            EOT, str_replace("\t", ' ', $printed));
     }
 }

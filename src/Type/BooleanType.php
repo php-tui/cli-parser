@@ -4,7 +4,6 @@ namespace PhpTui\CliParser\Type;
 
 use PhpTui\CliParser\Error\ParseError;
 
-
 /**
  * @implements Type<bool>
  */

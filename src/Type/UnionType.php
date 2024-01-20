@@ -2,13 +2,19 @@
 
 namespace PhpTui\CliParser\Type;
 
+/**
+ * @implements Type<mixed>
+ */
 final class UnionType implements Type
 {
     /**
-     * @var Type[]
+     * @var Type<mixed>[]
      */
     public array $types;
 
+    /**
+     * @param Type<mixed> ...$types
+     */
     public function __construct(Type ...$types)
     {
         $this->types = $types;

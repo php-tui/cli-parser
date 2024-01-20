@@ -20,6 +20,7 @@ final class TypeFactoryTest extends TestCase
 {
     /**
      * @param Closure():(ReflectionType|null) $factory
+     * @param Type<mixed> $expected
      */
     #[DataProvider('provideFromReflectionType')]
     public function testFromReflectionType(Closure $factory, Type $expected): void

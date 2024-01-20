@@ -8,7 +8,6 @@ use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Loader;
 use PhpTui\CliParser\Metadata\Argument;
-use PhpTui\CliParser\Metadata\ArgumentLike;
 use PhpTui\CliParser\Metadata\Command;
 use PhpTui\CliParser\Metadata\Option;
 use PhpTui\CliParser\Type\IntegerType;
@@ -103,23 +102,24 @@ final class LoaderTest extends TestCase
     {
         $this->assertRoot(
             new class {
-                #[Arg(help: "This is some arg help")]
+                #[Arg(help: 'This is some arg help')]
                 public string $barfoo;
-                #[Opt(help: "This is some opt help")]
+
+                #[Opt(help: 'This is some opt help')]
                 public string $foobar;
             },
             arguments: [
                 new Argument(
                     name: 'barfoo',
                     type: new StringType(),
-                    help: "This is some arg help",
+                    help: 'This is some arg help',
                 ),
             ],
             options: [
                 new Option(
                     name: 'foobar',
                     type: new StringType(),
-                    help: "This is some opt help",
+                    help: 'This is some opt help',
                 ),
             ]
         );
@@ -129,11 +129,11 @@ final class LoaderTest extends TestCase
     {
         $this->assertRoot(
             new class {
-                #[Cmd(help: "This is a sub-command")]
+                #[Cmd(help: 'This is a sub-command')]
                 public ?object $subCommand = null;
 
                 public function __construct(
-                    #[Opt(help: "This is some opt help")]
+                    #[Opt(help: 'This is some opt help')]
                     public string $foobar = '',
                 ) {
                     $this->subCommand = new class {
@@ -145,7 +145,7 @@ final class LoaderTest extends TestCase
             arguments: [
                 new Command(
                     name: 'subCommand',
-                    help: "This is a sub-command",
+                    help: 'This is a sub-command',
                     arguments: [
                         new Argument(name: 'url', type: new StringType()),
                     ]
@@ -155,14 +155,14 @@ final class LoaderTest extends TestCase
                 new Option(
                     name: 'foobar',
                     type: new StringType(),
-                    help: "This is some opt help",
+                    help: 'This is some opt help',
                 ),
             ]
         );
     }
 
     /**
-     * @param array<int,ArgumentLike> $arguments
+     * @param array<int,Argument|Command> $arguments
      * @param array<int,Option> $options
      */
     private function assertRoot(object $target, array $arguments = [], array $options = []): void

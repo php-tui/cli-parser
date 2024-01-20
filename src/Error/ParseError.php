@@ -4,6 +4,6 @@ namespace PhpTui\CliParser\Error;
 
 use RuntimeException;
 
-class ParseError extends RuntimeException
+final class ParseError extends RuntimeException
 {
 }

@@ -3,7 +3,7 @@
 namespace PhpTui\CliParser\Type;
 
 /**
- * @implements Type<string>
+ * @implements Type<mixed>
  */
 final class MixedType implements Type
 {

@@ -4,7 +4,6 @@ namespace PhpTui\CliParser;
 
 use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Type\BooleanType;
-use ReflectionClass;
 use RuntimeException;
 
 final class Parser
@@ -79,7 +78,8 @@ final class Parser
             $argString = array_shift($arguments);
             if (null === $argString) {
                 if ($param->required === true) {
-                    throw new ParseError(sprintf('Not enough arguments, need "%s"',
+                    throw new ParseError(sprintf(
+                        'Not enough arguments, need "%s"',
                         count($cmd->arguments())
                     ));
                 }

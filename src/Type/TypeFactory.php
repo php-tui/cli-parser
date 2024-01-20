@@ -9,6 +9,9 @@ use RuntimeException;
 
 final class TypeFactory
 {
+    /**
+     * @return Type<mixed>
+     */
     public static function fromReflectionType(ReflectionType|null $type): Type
     {
         if (null === $type) {

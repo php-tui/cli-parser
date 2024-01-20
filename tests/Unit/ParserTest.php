@@ -25,7 +25,7 @@ final class ParserTest extends TestCase
     public static function provideArguments(): Generator
     {
         yield '<foobar>' => [
-            function () {
+            function (): void {
                 $target = new class {
                     #[Arg()]
                     public ?string $foobar = null;
@@ -35,10 +35,11 @@ final class ParserTest extends TestCase
             },
         ];
         yield '<foobar> <barfoo>' => [
-            function () {
+            function (): void {
                 $target = new class {
                     #[Arg()]
                     public ?string $foobar = null;
+
                     #[Arg()]
                     public ?string $barfoo = null;
                 };
@@ -48,12 +49,14 @@ final class ParserTest extends TestCase
             }
         ];
         yield '<foobar> <barfoo> --options=<value>' => [
-            function () {
+            function (): void {
                 $target = new class {
                     #[Arg()]
                     public ?string $foobar = null;
+
                     #[Opt()]
                     public ?string $option = null;
+
                     #[Arg()]
                     public ?string $barfoo = null;
                 };
@@ -65,7 +68,7 @@ final class ParserTest extends TestCase
             }
         ];
         yield '<foobar> where foobar has spaces' => [
-            function () {
+            function (): void {
                 $target = new class {
                     #[Arg()]
                     public ?string $foobar = null;
@@ -76,7 +79,7 @@ final class ParserTest extends TestCase
             }
         ];
         yield '[<foobar>] optional argument omitted' => [
-            function () {
+            function (): void {
                 $target = new class {
                     #[Arg(required: false)]
                     public string $foobar = 'bar';
@@ -87,10 +90,11 @@ final class ParserTest extends TestCase
             }
         ];
         yield 'invalid [<foobar>] <barfoo> cannot have optional argument before required argument' => [
-            function () {
+            function (): void {
                 $target = new class {
                     #[Arg(required: false)]
                     public string $foobar;
+
                     #[Arg(required: true)]
                     public string $barfoo;
                 };
@@ -105,14 +109,17 @@ final class ParserTest extends TestCase
             }
         ];
         yield 'all supported types' => [
-            function () {
+            function (): void {
                 $target = new class {
                     #[Arg()]
                     public string $string;
+
                     #[Arg()]
                     public int $int;
+
                     #[Arg()]
                     public float $float;
+
                     #[Arg()]
                     public bool $boolean;
                 };
@@ -132,10 +139,11 @@ final class ParserTest extends TestCase
     public static function provideOptions(): Generator
     {
         yield '--on' => [
-            function () {
+            function (): void {
                 $target = new class {
                     #[Opt()]
                     public bool $on = false;
+
                     #[Opt()]
                     public bool $off = false;
                 };
@@ -146,7 +154,7 @@ final class ParserTest extends TestCase
             },
         ];
         yield '--on=true with all boolean string values' => [
-            function () {
+            function (): void {
                 $target = new class {
                     #[Opt()]
                     public bool $on = false;
@@ -167,12 +175,14 @@ final class ParserTest extends TestCase
             },
         ];
         yield '--integer=1 --on1' => [
-            function () {
+            function (): void {
                 $target = new class {
                     #[Opt()]
                     public int $integer = 2;
+
                     #[Opt()]
                     public string $off = 'off';
+
                     #[Opt()]
                     public bool $on1 = false;
                 };
@@ -184,25 +194,25 @@ final class ParserTest extends TestCase
             },
         ];
         yield '--greeting="hello world"' => [
-            function () {
+            function (): void {
                 $target = new class {
                     #[Opt()]
                     public ?string $greeting = null;
                 };
                 self::parse($target, ['cmd', '--greeting=hello world']);
 
-                self::assertSame("hello world", $target->greeting);
+                self::assertSame('hello world', $target->greeting);
             },
         ];
         yield '-g"hello world" short option' => [
-            function () {
+            function (): void {
                 $target = new class {
-                    #[Opt(short:"g")]
+                    #[Opt(short:'g')]
                     public ?string $greeting = null;
                 };
                 self::parse($target, ['cmd', '-ghello world']);
 
-                self::assertSame("hello world", $target->greeting);
+                self::assertSame('hello world', $target->greeting);
             },
         ];
     }

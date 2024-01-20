@@ -53,10 +53,15 @@ final class Command implements ArgumentLike
      */
     public function optionsKeyedByShortName(): array
     {
+        $shortOptions = array_filter(
+            $this->options,
+            fn (Option $short) => $short->short !== null,
+        );
+
         return array_combine(array_map(
-            fn (Option $option) => $option->short,
-            $this->options
-        ), array_values($this->options));
+            fn (Option $option) => (string)$option->short,
+            $shortOptions,
+        ), array_values($shortOptions));
     }
 
 }

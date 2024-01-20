@@ -6,7 +6,7 @@ use PhpTui\CliParser\Metadata\Command;
 use PhpTui\CliParser\Metadata\Option;
 use RuntimeException;
 
-class AsciiPrinter
+final class AsciiPrinter
 {
     public function print(object $object): string
     {
@@ -49,7 +49,7 @@ class AsciiPrinter
             }
         }
 
-        return implode("\n" ,$out);
+        return implode("\n", $out);
     }
 
     private function commandSynopsis(Command $command, int $level): string
@@ -88,6 +88,6 @@ class AsciiPrinter
         }
         $out[] = sprintf('(%s)', $option->type->toString());
 
-        return $this->indent(implode(" ", $out), $level);
+        return $this->indent(implode(' ', $out), $level);
     }
 }
