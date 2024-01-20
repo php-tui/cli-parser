@@ -272,9 +272,32 @@ final class ParserTest extends TestCase
                 };
 
                 self::parse($cli, ['cmd', '--flag', 'ls', 'foo.php', 'bar.php']);
+                self::assertEquals(true, $cli->flag);
                 /** @phpstan-ignore-next-line */
                 self::assertEquals(['foo.php', 'bar.php'], $cli->ls->paths);
-                self::assertEquals(true, $cli->flag);
+            },
+        ];
+        yield 'ls --flag <path> ...' => [
+            function (): void {
+                $cli = new class(
+                    new #[Cmd()] class {
+                        #[Opt()]
+                        public bool $flag;
+                        /** @var list<string> */
+                        #[Arg()]
+                        public array $paths = [];
+                    },
+                ) {
+                    public function __construct(
+                        public object $ls,
+                    ) {}
+                };
+
+                self::parse($cli, ['cmd', 'ls', '--flag', 'foo.php', 'bar.php']);
+                /** @phpstan-ignore-next-line */
+                self::assertEquals(true, $cli->ls->flag);
+                /** @phpstan-ignore-next-line */
+                self::assertEquals(['foo.php', 'bar.php'], $cli->ls->paths);
             },
         ];
     }

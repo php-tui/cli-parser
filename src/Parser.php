@@ -30,41 +30,7 @@ final class Parser
 
         $script = array_shift($args);
 
-        $arguments = [];
-        $optionsToParse = [];
-        $shortOptions = [];
-
-        foreach ($args as $arg) {
-            if (substr($arg, 0, 1) !== '-') {
-                $arguments[] = $arg;
-                continue;
-            }
-
-            if (substr($arg, 0, 1) === '-') {
-                $nameOffset = 1;
-                if (substr($arg, 1, 1) === '-') {
-                    // long option
-                    $equalPos = strpos($arg, '=');
-                    if ($equalPos !== false) {
-                        // option with value
-                        $optionName = substr($arg, 2, $equalPos - 2);
-                        $optionValueString = substr($arg, strpos($arg, '=') + 1);
-                    } else {
-                        // boolean flag
-                        $optionName = substr($arg, 2);
-                        $optionValueString = null;
-                    }
-                } else {
-                    // short option
-                    $optionName = substr($arg, 1, 1);
-                    $optionValueString = substr($arg, 2);
-                }
-                $optionsToParse[$optionName] = $optionValueString;
-                continue;
-            }
-
-            $shortOptions[substr($arg, 1)] = $arg;
-        }
+        [$arguments, $optionsToParse] = $this->parseArguments($args);
 
         $cmd = $this->loader->load($target);
 
@@ -118,8 +84,9 @@ final class Parser
         foreach ($optionsToParse as $name => $optionValue) {
             if (!isset($cliOptions[$name])) {
                 throw new RuntimeException(sprintf(
-                    'Unknown CLI option "%s", known options: "%s"',
+                    'Unknown CLI option "%s" on command "%s", known options: "%s"',
                     $name,
+                    $cmd->name,
                     implode('", "', array_keys($cliOptions)),
                 ));
             }
@@ -139,10 +106,50 @@ final class Parser
 
         $nextCommand = $cmd->getCommand($nextCommandName);
         if ($nextCommand) {
-            $this->parse($target->{$nextCommand->name}, $args);
+            $this->parse($target->{$nextCommand->name}, [$nextCommand, ...$arguments]);
             return;
         }
 
         throw new ParseError(sprintf('Superflous argument with value "%s" provided', $nextCommandName));
+    }
+
+    private function parseArguments(array $args): array
+    {
+        $arguments = [];
+        $optionsToParse = [];
+        $shortOptions = [];
+        
+        foreach ($args as $arg) {
+            if (substr($arg, 0, 1) !== '-') {
+                $arguments[] = $arg;
+                continue;
+            }
+        
+            if (substr($arg, 0, 1) === '-') {
+                $nameOffset = 1;
+                if (substr($arg, 1, 1) === '-') {
+                    // long option
+                    $equalPos = strpos($arg, '=');
+                    if ($equalPos !== false) {
+                        // option with value
+                        $optionName = substr($arg, 2, $equalPos - 2);
+                        $optionValueString = substr($arg, strpos($arg, '=') + 1);
+                    } else {
+                        // boolean flag
+                        $optionName = substr($arg, 2);
+                        $optionValueString = null;
+                    }
+                } else {
+                    // short option
+                    $optionName = substr($arg, 1, 1);
+                    $optionValueString = substr($arg, 2);
+                }
+                $optionsToParse[$optionName] = $optionValueString;
+                continue;
+            }
+        
+            $shortOptions[substr($arg, 1)] = $arg;
+        }
+        return [$arguments, $optionsToParse];
     }
 }
