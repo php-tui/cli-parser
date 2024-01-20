@@ -6,9 +6,9 @@ use Closure;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use ParseError;
 use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Opt;
+use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Parser;
 
 final class ParserTest extends TestCase
@@ -96,7 +96,7 @@ final class ParserTest extends TestCase
                 };
 
                 try {
-                    self::parse($target, ['cmd']);
+                    self::parse($target, ['cmd' ,'foo', 'bar']);
                 } catch (ParseError $error) {
                     self::assertStringContainsString('Required argument <barfoo> cannot be positioned after optional argument', $error->getMessage());
                     return;

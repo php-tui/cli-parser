@@ -10,6 +10,7 @@ final class Argument implements ArgumentLike
         public string $name,
         public Type $type,
         public ?string $help = null,
+        public bool $required = true,
     ) {
     }
 

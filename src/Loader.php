@@ -66,6 +66,7 @@ final class Loader
             name: $name,
             type: $type,
             help: $attribute->help,
+            required: $attribute->required,
         );
     }
 

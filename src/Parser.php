@@ -67,14 +67,29 @@ final class Parser
 
         $cmd = $this->loader->load($target);
 
+        $firstOptional = null;
         foreach ($cmd->arguments() as $param) {
-            $argString = array_shift($arguments);
-            if (null === $argString) {
-                throw new ParseError(sprintf('Not enough arguments, need "%s"',
-                    count($cmd->arguments())
+            if ($param->required && $firstOptional) {
+                throw new ParseError(sprintf(
+                    'Required argument <%s> cannot be positioned after optional argument <%s>',
+                    $param->name,
+                    $firstOptional->name
                 ));
             }
+            $argString = array_shift($arguments);
+            if (null === $argString) {
+                if ($param->required === true) {
+                    throw new ParseError(sprintf('Not enough arguments, need "%s"',
+                        count($cmd->arguments())
+                    ));
+                }
+
+                continue;
+            }
             $target->{$param->name} = $param->type->parse($argString);
+            if ($param->required === false) {
+                $firstOptional = $param;
+            }
         }
 
         $cliOptions = $cmd->optionsKeyedByName();
