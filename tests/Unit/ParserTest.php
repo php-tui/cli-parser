@@ -7,6 +7,7 @@ use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use PhpTui\CliParser\Attribute\Arg;
+use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Parser;
@@ -48,22 +49,28 @@ final class ParserTest extends TestCase
                 self::assertEquals('barfoo', $target->barfoo);
             }
         ];
-        yield '...<foobar> variadic argument' => [
+        yield '<foobar> ... repeat argument' => [
             function (): void {
                 $target = new class {
                     #[Arg()]
+                    /** @phpstan-ignore-next-line */
                     public array $foobars = [];
                 };
                 self::parse($target, ['cmd', 'foobar', 'barfoo']);
-
                 self::assertEquals(['foobar', 'barfoo'], $target->foobars);
             }
         ];
-        yield '<foobar> <barfoo> --options=<value>' => [
+        yield '<foobar> <barfoo> --option=<value>' => [
             function (): void {
                 $target = new class {
-                    #[Arg(many: true)]
-                    public ?array $foobars = [];
+                    #[Arg()]
+                    public string $foobar;
+
+                    #[Arg()]
+                    public string $barfoo;
+
+                    #[Opt()]
+                    public string $option;
                 };
                 self::parse($target, ['cmd', 'foobar', '--option=foo', 'barfoo']);
 
@@ -220,6 +227,35 @@ final class ParserTest extends TestCase
                 self::assertSame('hello world', $target->greeting);
             },
         ];
+    }
+
+    public function testExample(): void
+    {
+        $cli = new #[Cmd('My App', help: 'Application to list and remove files')] class(
+            new #[Cmd('rm', help: 'Remove files')] class {
+                #[Opt(help: 'Force removal')]
+                public bool $force = false;
+
+                #[Opt(help: 'Recursively remove files', short: 'r')]
+                public bool $recursive = false;
+
+                /** @var list<string> */
+                #[Opt(help: 'Paths to remove', name: 'path', type: 'path')]
+                public array $paths = [];
+            },
+            new #[Cmd('ls', help: 'List files')] class {
+                /** @var list<string> */
+                #[Opt(help: 'Paths to list', name: 'path', type: 'path')]
+                public array $paths = [];
+            },
+        ) {
+            public function __construct(
+                public object $rmCmd,
+                public object $lsCmd,
+            ) {}
+        };
+
+        self::parse($cli, ['cmd', 'rm', '--force', '-r', 'path1.php', 'path2.php']);
     }
 
     /**

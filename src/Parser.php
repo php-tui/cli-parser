@@ -4,6 +4,7 @@ namespace PhpTui\CliParser;
 
 use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Type\BooleanType;
+use PhpTui\CliParser\Type\ListType;
 use RuntimeException;
 
 final class Parser
@@ -67,6 +68,8 @@ final class Parser
         $cmd = $this->loader->load($target);
 
         $firstOptional = null;
+        $firstList = null;
+        $listItems = [];
         foreach ($cmd->arguments() as $param) {
             if ($param->required && $firstOptional) {
                 throw new ParseError(sprintf(
@@ -75,7 +78,22 @@ final class Parser
                     $firstOptional->name
                 ));
             }
+
+            if ($firstList !== null) {
+                throw new ParseError(sprintf(
+                    'No arguments area allowed after list argument <%s>',
+                    $firstList->name
+                ));
+            }
+
+            if ($param->type instanceof ListType) {
+                $target->{$param->name} = $arguments;
+                $firstList = $param;
+                continue;
+            }
+
             $argString = array_shift($arguments);
+
             if (null === $argString) {
                 if ($param->required === true) {
                     throw new ParseError(sprintf(
