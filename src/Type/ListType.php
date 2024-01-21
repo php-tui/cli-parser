@@ -2,6 +2,8 @@
 
 namespace PhpTui\CliParser\Type;
 
+use Exception;
+
 /**
  * @template IType of Type
  * @implements Type<IType>
@@ -27,6 +29,6 @@ final class ListType implements Type
 
     public function parse(string $value): mixed
     {
-        throw new \Exception('List type does not support parsing');
+        throw new Exception('List type does not support parsing');
     }
 }

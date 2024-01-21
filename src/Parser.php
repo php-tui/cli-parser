@@ -3,10 +3,8 @@
 namespace PhpTui\CliParser;
 
 use PhpTui\CliParser\Error\ParseError;
-use PhpTui\CliParser\Metadata\Argument;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\CommandDefinition;
-use PhpTui\CliParser\Type\BooleanType;
 use PhpTui\CliParser\Type\ListType;
 use RuntimeException;
 
@@ -159,8 +157,7 @@ final class Parser
         array &$args,
         array &$argumentDefinitions,
         string $arg
-    ): object
-    {
+    ): object {
         $argumentDefinition = array_shift($argumentDefinitions);
 
         if ($argumentDefinition instanceof ArgumentDefinition) {
@@ -200,8 +197,7 @@ final class Parser
         object $target,
         string $name,
         string $value
-    ): void
-    {
+    ): void {
         $option = $commandDefinition->getOption($name);
         if ($option->type instanceof ListType) {
             $target->{$option->name} = array_map(
@@ -213,7 +209,7 @@ final class Parser
         $target->{$option->name} = $option->type->parse($value);
     }
 
-    private function mapShortOption(CommandDefinition $commandDefinition, object $target, string $name, string $value)
+    private function mapShortOption(CommandDefinition $commandDefinition, object $target, string $name, string $value): void
     {
         $option = $commandDefinition->getShortOption($name);
         $target->{$option->name} = $option->type->parse($value);

@@ -6,7 +6,6 @@ use Closure;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\TextUI\Command\Command;
 use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
@@ -323,7 +322,8 @@ final class ParserTest extends TestCase
                 ) {
                     public function __construct(
                         public object $ls,
-                    ) {}
+                    ) {
+                    }
                 };
 
                 self::parse($cli, ['ls', 'foo.php', 'bar.php']);
@@ -342,7 +342,8 @@ final class ParserTest extends TestCase
                 ) {
                     public function __construct(
                         public object $ls,
-                    ) {}
+                    ) {
+                    }
                 };
 
                 self::parse($cli, ['ls', '1', '2']);
@@ -364,7 +365,8 @@ final class ParserTest extends TestCase
                         #[Opt()]
                         public bool $flag,
                         public object $ls,
-                    ) {}
+                    ) {
+                    }
                 };
 
                 self::parse($cli, ['--flag', 'ls', 'foo.php', 'bar.php']);
@@ -379,6 +381,7 @@ final class ParserTest extends TestCase
                     new #[Cmd()] class {
                         #[Opt()]
                         public bool $flag = false;
+
                         /** @var list<string> */
                         #[Arg()]
                         public array $paths = [];
@@ -386,7 +389,8 @@ final class ParserTest extends TestCase
                 ) {
                     public function __construct(
                         public object $ls,
-                    ) {}
+                    ) {
+                    }
                 };
 
                 self::parse($cli, ['ls', '--flag', 'foo.php', 'bar.php']);
@@ -402,13 +406,15 @@ final class ParserTest extends TestCase
                     new #[Cmd()] class {
                         #[Arg()]
                         public string $path;
+
                         #[Opt()]
                         public bool $flag = false;
                     },
                 ) {
                     public function __construct(
                         public object $ls,
-                    ) {}
+                    ) {
+                    }
                 };
 
                 self::parse($cli, ['ls', 'bar.php', '--flag', ]);
@@ -429,6 +435,7 @@ final class ParserTest extends TestCase
                     new #[Cmd()] class {
                         #[Arg()]
                         public string $path;
+
                         #[Opt()]
                         public bool $flag = false;
                     },
@@ -436,7 +443,8 @@ final class ParserTest extends TestCase
                     public function __construct(
                         public object $rm,
                         public object $ls,
-                    ) {}
+                    ) {
+                    }
                 };
 
                 self::parse($cli, ['ls', 'bar.php', '--flag', ]);
@@ -454,6 +462,7 @@ final class ParserTest extends TestCase
                         new #[Cmd(name: 'set-phone')] class {
                             #[Arg()]
                             public int $number;
+
                             #[Opt()]
                             public bool $home;
                         }
@@ -462,12 +471,14 @@ final class ParserTest extends TestCase
                             #[Arg()]
                             public string $name,
                             public object $setPhone,
-                        ) {}
+                        ) {
+                        }
                     },
                 ) {
                     public function __construct(
                         public object $user,
-                    ) {}
+                    ) {
+                    }
                 };
 
                 self::parse($cli, ['user', 'daniel', 'set-phone', '0123412341234', '--home']);
@@ -503,7 +514,8 @@ final class ParserTest extends TestCase
             public function __construct(
                 public object $rmCmd,
                 public object $lsCmd,
-            ) {}
+            ) {
+            }
         };
 
         $cmd = self::parse($cli, ['rm', '--force', '-r', 'path1.php', 'path2.php']);

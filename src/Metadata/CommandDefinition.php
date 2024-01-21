@@ -10,6 +10,7 @@ final class CommandDefinition implements ArgumentLike
      * @var array<string,OptionDefinition>
      */
     private readonly array $optionsByName;
+
     /**
      * @var array<string,OptionDefinition>
      */
