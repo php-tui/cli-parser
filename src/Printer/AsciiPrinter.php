@@ -32,10 +32,10 @@ final class AsciiPrinter
         $out[] = $this->commandSynopsis($object, $level);
         $out[] = '';
 
-        if (count($object->options)) {
+        if (count($object->options())) {
             $out[] = 'Options:';
             $out[] = '';
-            foreach ($object->options as $option) {
+            foreach ($object->options() as $option) {
                 $out[] = $this->optionSynopsis($option, $level+1);
             }
             $out[] = '';
@@ -59,7 +59,7 @@ final class AsciiPrinter
         foreach ($command->arguments() as $argument) {
             $out[] = sprintf('<%s>', $argument->name);
         }
-        foreach ($command->options as $option) {
+        foreach ($command->options() as $option) {
             $out[] = sprintf('[--%s%s]', $option->parseName, $option->short ? sprintf('|-%s', $option->short) : '');
         }
 

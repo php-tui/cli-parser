@@ -33,6 +33,8 @@ final class Parser
         $argumentDefinitions = $commandDefinition->arguments();
         $commandDefinitions = $commandDefinition->commands();
 
+        $longOptions = [];
+
         while ($arg = array_shift($args)) {
             $parsed = $this->parseArgument($arg);
 
@@ -41,16 +43,22 @@ final class Parser
             $name = $parsed[2] ?? null;
 
             if ($type === self::T_ARG) {
-                $this->mapArgument(
+                $stopParsing = $this->mapArgument(
                     $commandDefinition,
                     $target,
                     $args,
                     $argumentDefinitions,
                     $arg
                 );
+                if ($stopParsing) {
+                    return;
+                }
+                continue;
             }
 
-
+            if ($type === self::T_OPT) {
+                $this->mapOption($commandDefinition, $target, $name, $value);
+            }
         }
         // for each arg
         //
@@ -58,7 +66,7 @@ final class Parser
     }
 
     /**
-     * @return array{0:self::T_*,1:string,2?:string}
+     * @return array{0:self::T_*,1:(bool|string),2?:string}
      */
     private function parseArgument(string $arg): array
     {
@@ -73,8 +81,8 @@ final class Parser
                 // option with value
                 return [
                     self::T_OPT,
+                    substr($arg, strpos($arg, '=') + 1),
                     substr($arg, 2, $equalPos - 2),
-                    substr($arg, strpos($arg, '=') + 1)
                 ];
             }
 
@@ -109,7 +117,7 @@ final class Parser
         array &$args,
         array &$argumentDefinitions,
         string $arg
-    ): void
+    ): bool
     {
         $argumentDefinition = array_shift($argumentDefinitions);
 
@@ -117,20 +125,32 @@ final class Parser
             if ($argumentDefinition->type instanceof ListType) {
                 $target->{$argumentDefinition->name} = [$arg, ...$args];
                 $args = [];
-                return;
+                return true;
             }
             $target->{$argumentDefinition->name} = $argumentDefinition->type->parse($arg);
-            return;
+            return false;
         }
 
         $subCommandDefinition = $commandDefinition->getCommand($arg);
         if (null !== $subCommandDefinition) {
             $this->parse($subCommandDefinition, $args);
+            return true;
         }
         throw new ParseError(sprintf(
             'Extra argument with value "%s" provided for command <%s>',
             $arg,
             $commandDefinition->name
         ));
+    }
+
+    private function mapOption(
+        CommandDefinition $commandDefinition,
+        object $target,
+        string $name,
+        string $value
+    ): void
+    {
+        $option = $commandDefinition->getOption($name);
+        $target->{$option->name} = $option->type->parse($value);
     }
 }

@@ -5,12 +5,12 @@ namespace PhpTui\CliParser;
 use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
+use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\CommandDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinition;
 use PhpTui\CliParser\Type\TypeFactory;
 use ReflectionAttribute;
-use ReflectionClass;
 use ReflectionObject;
 use ReflectionProperty;
 use RuntimeException;
@@ -21,7 +21,9 @@ final class Loader
 
     public function load(object $object): CommandDefinition
     {
-        return $this->loadCommand($object, null);
+        $cmd = $this->loadCommand($object, null);
+        $this->validate($cmd);
+        return $cmd;
     }
 
     private function loadCommand(object $object, ?ReflectionProperty $parent): CommandDefinition
@@ -119,5 +121,23 @@ final class Loader
         }
 
         return $name;
+    }
+
+    private function validate(CommandDefinition $cmd): void
+    {
+        $firstOptional = null;
+        foreach ($cmd->arguments() as $argument) {
+            if ($firstOptional && $argument->required) {
+                throw new ParseError(sprintf(
+                    'Required argument <%s> cannot be positioned after optional argument <%s>',
+                    $argument->name,
+                    $firstOptional->name,
+                ));
+            }
+            if ($argument->required === false) {
+                $firstOptional = $argument;
+            }
+
+        }
     }
 }

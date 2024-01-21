@@ -97,7 +97,7 @@ final class ParserTest extends TestCase
                     #[Arg(required: false)]
                     public string $foobar = 'bar';
                 };
-                self::parse($target, ['cmd']);
+                self::parse($target, []);
 
                 self::assertEquals('bar', $target->foobar);
             }
@@ -113,7 +113,7 @@ final class ParserTest extends TestCase
                 };
 
                 try {
-                    self::parse($target, ['cmd' ,'foo', 'bar']);
+                    self::parse($target, ['foo', 'bar']);
                 } catch (ParseError $error) {
                     self::assertStringContainsString('Required argument <barfoo> cannot be positioned after optional argument', $error->getMessage());
                     return;

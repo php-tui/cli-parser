@@ -2,28 +2,55 @@
 
 namespace PhpTui\CliParser\Metadata;
 
+use PhpTui\CliParser\Error\ParseError;
+
 final class CommandDefinition implements ArgumentLike
 {
     /**
-     * @param list<Argument|Command> $arguments
-     * @param list<Option> $options
+     * @var array<string,OptionDefinition>
+     */
+    private readonly array $optionsByName;
+    /**
+     * @var array<string,OptionDefinition>
+     */
+    private readonly array $optionsByShort;
+
+    /**
+     * @var list<OptionDefinition>
+     */
+    private readonly array $options;
+
+    /**
+     * @param list<ArgumentDefinition|CommandDefinition> $arguments
+     * @param list<OptionDefinition> $options
      */
     public function __construct(
         public readonly string $name,
         public readonly array $arguments = [],
-        public readonly array $options = [],
+        array $options = [],
         public readonly ?string $help = null,
     ) {
+        $optionsByName = [];
+        $optionsByShort = [];
+        foreach ($options as $option) {
+            $optionsByName[$option->parseName] = $option;
+            if ($option->short !== null) {
+                $optionsByShort[$option->short] = $option;
+            }
+        }
+        $this->optionsByName = $optionsByName;
+        $this->optionsByShort = $optionsByShort;
+        $this->options = $options;
     }
     /**
-     * @return Command[]
+     * @return CommandDefinition[]
      */
     public function commands(): array
     {
         return array_filter($this->arguments, fn (ArgumentLike $a) => $a instanceof CommandDefinition);
     }
     /**
-     * @return Argument[]
+     * @return ArgumentDefinition[]
      */
     public function arguments(): array
     {
@@ -31,40 +58,6 @@ final class CommandDefinition implements ArgumentLike
             $this->arguments,
             fn (ArgumentLike $a) => $a instanceof ArgumentDefinition
         );
-    }
-
-    /**
-     * @return array<string,Option>
-     */
-    public function optionsKeyedByName(): array
-    {
-        return array_merge($this->optionsKeyedByLongName(), $this->optionsKeyedByShortName());
-    }
-
-    /**
-     * @return array<string,Option>
-     */
-    public function optionsKeyedByLongName(): array
-    {
-        return array_combine(array_map(
-            fn (OptionDefinition $option) => $option->parseName,
-            $this->options
-        ), array_values($this->options));
-    }
-    /**
-     * @return array<string,Option>
-     */
-    public function optionsKeyedByShortName(): array
-    {
-        $shortOptions = array_filter(
-            $this->options,
-            fn (OptionDefinition $short) => $short->short !== null,
-        );
-
-        return array_combine(array_map(
-            fn (OptionDefinition $option) => (string)$option->short,
-            $shortOptions,
-        ), array_values($shortOptions));
     }
 
     public function getCommand(string $name):?CommandDefinition
@@ -76,6 +69,25 @@ final class CommandDefinition implements ArgumentLike
         }
 
         return null;
+    }
+
+    public function getOption(string $name): OptionDefinition
+    {
+        if (isset($this->optionsByName[$name])) {
+            return $this->optionsByName[$name];
+        }
+
+        throw new ParseError(sprintf(
+            'Unknown option --%s for command "%s", known options: %s',
+            $name,
+            $this->name,
+            implode(', ', array_keys($this->optionsByName))
+        ));
+    }
+
+    public function options(): array
+    {
+        return $this->options;
     }
 
 }
