@@ -87,6 +87,9 @@ final class CommandDefinition implements ArgumentLike
         ));
     }
 
+    /**
+     * @return list<OptionDefinition>
+     */
     public function options(): array
     {
         return $this->options;

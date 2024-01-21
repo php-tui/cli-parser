@@ -482,6 +482,7 @@ final class ParserTest extends TestCase
                 };
 
                 self::parse($cli, ['user', 'daniel', 'set-phone', '0123412341234', '--home']);
+                /** @phpstan-ignore-next-line */
                 self::assertEquals(true, $cli->user->setPhone->home);
                 /** @phpstan-ignore-next-line */
                 self::assertEquals('daniel', $cli->user->name);
@@ -519,10 +520,14 @@ final class ParserTest extends TestCase
         };
 
         $cmd = self::parse($cli, ['rm', '--force', '-r', 'path1.php', 'path2.php']);
+        /** @phpstan-ignore-next-line */
         self::assertTrue($cmd->force);
+        /** @phpstan-ignore-next-line */
         self::assertTrue($cmd->recursive);
+        /** @phpstan-ignore-next-line */
         self::assertSame(['path1.php', 'path2.php'], $cli->rmCmd->paths);
         $cmd = self::parse($cli, ['ls', 'path1.php', 'path2.php']);
+        /** @phpstan-ignore-next-line */
         self::assertSame(['path1.php', 'path2.php'], $cmd->paths);
     }
 

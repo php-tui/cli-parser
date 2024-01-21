@@ -162,8 +162,8 @@ final class LoaderTest extends TestCase
     }
 
     /**
-     * @param array<int,Argument|Command> $arguments
-     * @param array<int,Option> $options
+     * @param array<int,ArgumentDefinition|CommandDefinition> $arguments
+     * @param array<int,OptionDefinition> $options
      */
     private function assertRoot(object $target, array $arguments = [], array $options = [], ?string $help = null, ?string $propertyName = null): void
     {

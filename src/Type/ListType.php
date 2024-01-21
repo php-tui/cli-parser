@@ -2,7 +2,7 @@
 
 namespace PhpTui\CliParser\Type;
 
-use Exception;
+use BadMethodCallException;
 
 /**
  * @template IType of Type
@@ -22,6 +22,9 @@ final class ListType implements Type
         return sprintf('list<%s>', $this->type->toString());
     }
 
+    /**
+     * @return IType
+     */
     public function itemType(): Type
     {
         return $this->type;
@@ -29,6 +32,6 @@ final class ListType implements Type
 
     public function parse(string $value): mixed
     {
-        throw new Exception('List type does not support parsing');
+        throw new BadMethodCallException('List type does not support parsing');
     }
 }
