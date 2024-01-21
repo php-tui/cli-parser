@@ -11,7 +11,7 @@ use PhpTui\CliParser\Parser;
 use PhpTui\CliParser\Printer\AsciiPrinter;
 
 #[Cmd(name: 'Git')]
-class GitCmd {
+final class GitCmd {
 
     #[Cmd(help: 'Clone a repository into a new directory')]
     public CloneCmd $clone;
@@ -29,7 +29,7 @@ class GitCmd {
     public string $cwd;
 }
 
-class CloneCmd {
+final class CloneCmd {
     #[Arg(help: 'Repository to clone', required: true)]
     public string $repo;
 
@@ -37,7 +37,7 @@ class CloneCmd {
     public bool $recurseSubModules = false;
 }
 
-class InitCmd {
+final class InitCmd {
     #[Arg(help: 'Repository to clone')]
     public string $repo;
 
@@ -83,5 +83,5 @@ if ($cmd instanceof InitCmd) {
 
 function println(string $message): void
 {
-echo $message ."\n";
+    echo $message . "\n";
 }
