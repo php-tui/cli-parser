@@ -148,7 +148,7 @@ final class Parser
 
         $subCommandDefinition = $commandDefinition->getCommand($arg);
         if (null !== $subCommandDefinition) {
-            $this->parse($subCommandDefinition, $args);
+            $this->parse($target->{$subCommandDefinition->name}, $args);
             return true;
         }
         throw new ParseError(sprintf(
