@@ -11,7 +11,7 @@ final class AsciiPrinter
     public function print(object $object): string
     {
         if ($object instanceof CommandDefinition) {
-            return $this->printCommad($object);
+            return $this->printCommand($object);
         }
 
         throw new RuntimeException(sprintf(
@@ -20,7 +20,7 @@ final class AsciiPrinter
         ));
     }
 
-    private function printCommad(CommandDefinition $object, int $level = 0): string
+    private function printCommand(CommandDefinition $object, int $level = 0): string
     {
         $out = [];
 
