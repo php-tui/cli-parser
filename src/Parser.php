@@ -74,6 +74,10 @@ final class Parser
                 $this->mapShortOption($commandDefinition, $target, $name ?? '', $value);
                 continue;
             }
+            if ($type === self::T_OPT_SHORT_FLAG) {
+                $this->mapShortOptionFlag($commandDefinition, $target, $name ?? '', $value);
+                continue;
+            }
 
             throw new RuntimeException(sprintf(
                 'Do not know how to map argument of type "%s"',
@@ -187,6 +191,12 @@ final class Parser
     private function mapFlag(CommandDefinition $commandDefinition, object $target, string $name): void
     {
         $option = $commandDefinition->getOption($name);
+        $target->{$option->name} = true;
+    }
+
+    private function mapShortOptionFlag(CommandDefinition $commandDefinition, object $target, string $name): void
+    {
+        $option = $commandDefinition->getShortOption($name);
         $target->{$option->name} = true;
     }
 }

@@ -228,6 +228,17 @@ final class ParserTest extends TestCase
                 self::assertSame('hello world', $target->greeting);
             },
         ];
+        yield '-g short flag' => [
+            function (): void {
+                $target = new class {
+                    #[Opt(short:'g')]
+                    public bool $greeting;
+                };
+                self::parse($target, ['-g']);
+
+                self::assertTrue($target->greeting);
+            },
+        ];
     }
 
     /**
@@ -384,6 +395,8 @@ final class ParserTest extends TestCase
 
     public function testExample(): void
     {
+        // shell rm [-f] [-r] <paths> ...
+        // shell ls [<paths> ...]
         $cli = new #[Cmd('My App', help: 'Application to list and remove files')] class(
             new #[Cmd('rm', help: 'Remove files')] class {
                 #[Opt(help: 'Force removal')]
@@ -393,7 +406,7 @@ final class ParserTest extends TestCase
                 public bool $recursive = false;
 
                 /** @var list<string> */
-                #[Opt(help: 'Paths to remove', name: 'path', type: 'path')]
+                #[Arg(help: 'Paths to remove', name: 'path', /** type: 'path' */)]
                 public array $paths = [];
             },
             new #[Cmd('ls', help: 'List files')] class {
@@ -409,6 +422,9 @@ final class ParserTest extends TestCase
         };
 
         self::parse($cli, ['rm', '--force', '-r', 'path1.php', 'path2.php']);
+        self::assertTrue($cli->rmCmd->force);
+        self::assertTrue($cli->rmCmd->recursive);
+        self::assertSame(['path1.php', 'path2.php'], $cli->rmCmd->paths);
     }
 
     /**
