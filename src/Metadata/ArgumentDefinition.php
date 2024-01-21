@@ -4,7 +4,7 @@ namespace PhpTui\CliParser\Metadata;
 
 use PhpTui\CliParser\Type\Type;
 
-final class Argument implements ArgumentLike
+final class ArgumentDefinition implements ArgumentLike
 {
     /**
      * @template TType

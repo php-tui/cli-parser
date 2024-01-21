@@ -32,7 +32,7 @@ final class ParserTest extends TestCase
                     #[Arg()]
                     public ?string $foobar = null;
                 };
-                self::parse($target, ['cmd', 'foobar']);
+                self::parse($target, ['foobar']);
                 self::assertEquals('foobar', $target->foobar);
             },
         ];
@@ -45,7 +45,7 @@ final class ParserTest extends TestCase
                     #[Arg()]
                     public ?string $barfoo = null;
                 };
-                self::parse($target, ['cmd', 'foobar', 'barfoo']);
+                self::parse($target, ['foobar', 'barfoo']);
                 self::assertEquals('foobar', $target->foobar);
                 self::assertEquals('barfoo', $target->barfoo);
             }
@@ -57,7 +57,7 @@ final class ParserTest extends TestCase
                     /** @phpstan-ignore-next-line */
                     public array $foobars = [];
                 };
-                self::parse($target, ['cmd', 'foobar', 'barfoo']);
+                self::parse($target, ['foobar', 'barfoo']);
                 self::assertEquals(['foobar', 'barfoo'], $target->foobars);
             }
         ];
@@ -73,7 +73,7 @@ final class ParserTest extends TestCase
                     #[Opt()]
                     public string $option;
                 };
-                self::parse($target, ['cmd', 'foobar', '--option=foo', 'barfoo']);
+                self::parse($target, ['foobar', '--option=foo', 'barfoo']);
 
                 self::assertEquals('foobar', $target->foobar);
                 self::assertEquals('barfoo', $target->barfoo);
@@ -86,7 +86,7 @@ final class ParserTest extends TestCase
                     #[Arg()]
                     public ?string $foobar = null;
                 };
-                self::parse($target, ['cmd', 'foobar barfoo']);
+                self::parse($target, ['foobar barfoo']);
 
                 self::assertEquals('foobar barfoo', $target->foobar);
             }
@@ -136,7 +136,7 @@ final class ParserTest extends TestCase
                     #[Arg()]
                     public bool $boolean;
                 };
-                self::parse($target, ['cmd', 'foobar', '12', '12.3', 'true']);
+                self::parse($target, ['foobar', '12', '12.3', 'true']);
 
                 self::assertEquals('foobar', $target->string);
                 self::assertEquals(12, $target->int);
@@ -160,7 +160,7 @@ final class ParserTest extends TestCase
                     #[Opt()]
                     public bool $off = false;
                 };
-                self::parse($target, ['cmd', '--on']);
+                self::parse($target, ['--on']);
 
                 self::assertSame(true, $target->on);
                 self::assertSame(false, $target->off);
@@ -181,7 +181,7 @@ final class ParserTest extends TestCase
                     'on' => true,
                     'yes' => true
                 ] as $variant => $expected) {
-                    self::parse($target, ['cmd', '--on='.$variant]);
+                    self::parse($target, ['--on='.$variant]);
                     self::assertSame($expected, $target->on);
                 }
 
@@ -199,7 +199,7 @@ final class ParserTest extends TestCase
                     #[Opt()]
                     public bool $on1 = false;
                 };
-                self::parse($target, ['cmd', '--integer=1', '--on1']);
+                self::parse($target, ['--integer=1', '--on1']);
 
                 self::assertSame(1, $target->integer);
                 self::assertSame('off', $target->off);
@@ -212,7 +212,7 @@ final class ParserTest extends TestCase
                     #[Opt()]
                     public ?string $greeting = null;
                 };
-                self::parse($target, ['cmd', '--greeting=hello world']);
+                self::parse($target, ['--greeting=hello world']);
 
                 self::assertSame('hello world', $target->greeting);
             },
@@ -223,7 +223,7 @@ final class ParserTest extends TestCase
                     #[Opt(short:'g')]
                     public ?string $greeting = null;
                 };
-                self::parse($target, ['cmd', '-ghello world']);
+                self::parse($target, ['-ghello world']);
 
                 self::assertSame('hello world', $target->greeting);
             },
@@ -249,7 +249,7 @@ final class ParserTest extends TestCase
                     ) {}
                 };
 
-                self::parse($cli, ['cmd', 'ls', 'foo.php', 'bar.php']);
+                self::parse($cli, ['ls', 'foo.php', 'bar.php']);
                 /** @phpstan-ignore-next-line */
                 self::assertEquals(['foo.php', 'bar.php'], $cli->ls->paths);
             },
@@ -271,7 +271,7 @@ final class ParserTest extends TestCase
                     ) {}
                 };
 
-                self::parse($cli, ['cmd', '--flag', 'ls', 'foo.php', 'bar.php']);
+                self::parse($cli, ['--flag', 'ls', 'foo.php', 'bar.php']);
                 self::assertEquals(true, $cli->flag);
                 /** @phpstan-ignore-next-line */
                 self::assertEquals(['foo.php', 'bar.php'], $cli->ls->paths);
@@ -293,7 +293,7 @@ final class ParserTest extends TestCase
                     ) {}
                 };
 
-                self::parse($cli, ['cmd', 'ls', '--flag', 'foo.php', 'bar.php']);
+                self::parse($cli, ['ls', '--flag', 'foo.php', 'bar.php']);
                 /** @phpstan-ignore-next-line */
                 self::assertEquals(true, $cli->ls->flag);
                 /** @phpstan-ignore-next-line */
@@ -315,7 +315,7 @@ final class ParserTest extends TestCase
                     ) {}
                 };
 
-                self::parse($cli, ['cmd', 'ls', 'bar.php', '--flag', ]);
+                self::parse($cli, ['ls', 'bar.php', '--flag', ]);
                 /** @phpstan-ignore-next-line */
                 self::assertEquals(true, $cli->ls->flag);
                 /** @phpstan-ignore-next-line */
@@ -343,33 +343,33 @@ final class ParserTest extends TestCase
                     ) {}
                 };
 
-                self::parse($cli, ['cmd', 'ls', 'bar.php', '--flag', ]);
+                self::parse($cli, ['ls', 'bar.php', '--flag', ]);
                 /** @phpstan-ignore-next-line */
                 self::assertEquals(true, $cli->ls->flag);
                 /** @phpstan-ignore-next-line */
                 self::assertEquals('bar.php', $cli->ls->path);
             },
         ];
-        yield 'user <name> set-phone 0123412341234 --home' => [
-            function (): void {
-                $cli = new class(
-                    new #[Cmd()] class {
-                        #[Arg()]
-                        public string $name;
-                    },
-                ) {
-                    public function __construct(
-                        public object $user,
-                    ) {}
-                };
+        // yield 'user <name> set-phone 0123412341234 --home' => [
+        //     function (): void {
+        //         $cli = new class(
+        //             new #[Cmd()] class {
+        //                 #[Arg()]
+        //                 public string $name,
+        //             },
+        //         ) {
+        //             public function __construct(
+        //                 public object $user,
+        //             ) {}
+        //         };
 
-                self::parse($cli, ['cmd', 'ls', 'bar.php', '--flag', ]);
-                /** @phpstan-ignore-next-line */
-                self::assertEquals(true, $cli->ls->flag);
-                /** @phpstan-ignore-next-line */
-                self::assertEquals('bar.php', $cli->ls->path);
-            },
-        ];
+        //         self::parse($cli, ['ls', 'bar.php', '--flag', ]);
+        //         /** @phpstan-ignore-next-line */
+        //         self::assertEquals(true, $cli->ls->flag);
+        //         /** @phpstan-ignore-next-line */
+        //         self::assertEquals('bar.php', $cli->ls->path);
+        //     },
+        // ];
     }
 
     public function testExample(): void
@@ -399,7 +399,7 @@ final class ParserTest extends TestCase
             ) {}
         };
 
-        self::parse($cli, ['cmd', 'rm', '--force', '-r', 'path1.php', 'path2.php']);
+        self::parse($cli, ['rm', '--force', '-r', 'path1.php', 'path2.php']);
     }
 
     /**

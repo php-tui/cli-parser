@@ -7,9 +7,9 @@ use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Loader;
-use PhpTui\CliParser\Metadata\Argument;
-use PhpTui\CliParser\Metadata\Command;
-use PhpTui\CliParser\Metadata\Option;
+use PhpTui\CliParser\Metadata\ArgumentDefinition;
+use PhpTui\CliParser\Metadata\CommandDefinition;
+use PhpTui\CliParser\Metadata\OptionDefinition;
 use PhpTui\CliParser\Type\IntegerType;
 use PhpTui\CliParser\Type\StringType;
 
@@ -23,7 +23,7 @@ final class LoaderTest extends TestCase
                 public string $foobar;
             },
             arguments: [
-                new Argument(
+                new ArgumentDefinition(
                     name: 'foobar',
                     type: new StringType()
                 )
@@ -42,8 +42,8 @@ final class LoaderTest extends TestCase
                 public int $barfoo;
             },
             arguments: [
-                new Argument(name: 'foobar', type: new StringType()),
-                new Argument(name: 'barfoo', type: new IntegerType()),
+                new ArgumentDefinition(name: 'foobar', type: new StringType()),
+                new ArgumentDefinition(name: 'barfoo', type: new IntegerType()),
             ]
         );
     }
@@ -56,7 +56,7 @@ final class LoaderTest extends TestCase
                 public string $foobar;
             },
             options: [
-                new Option(
+                new OptionDefinition(
                     name: 'foobar',
                     type: new StringType(),
                 ),
@@ -72,7 +72,7 @@ final class LoaderTest extends TestCase
                 public string $foobar;
             },
             options: [
-                new Option(
+                new OptionDefinition(
                     name: 'foobar',
                     parseName: 'foo-bar',
                     type: new StringType(),
@@ -89,7 +89,7 @@ final class LoaderTest extends TestCase
                 public string $foobar;
             },
             options: [
-                new Option(
+                new OptionDefinition(
                     name: 'foobar',
                     short: 's',
                     type: new StringType(),
@@ -109,14 +109,14 @@ final class LoaderTest extends TestCase
                 public string $foobar;
             },
             arguments: [
-                new Argument(
+                new ArgumentDefinition(
                     name: 'barfoo',
                     type: new StringType(),
                     help: 'This is some arg help',
                 ),
             ],
             options: [
-                new Option(
+                new OptionDefinition(
                     name: 'foobar',
                     type: new StringType(),
                     help: 'This is some opt help',
@@ -142,16 +142,16 @@ final class LoaderTest extends TestCase
             },
             help: 'This is the main command',
             arguments: [
-                new Command(
+                new CommandDefinition(
                     name: 'subCommand',
                     help: 'This is a sub-command',
                     arguments: [
-                        new Argument(name: 'url', type: new StringType()),
+                        new ArgumentDefinition(name: 'url', type: new StringType()),
                     ]
                 ),
             ],
             options: [
-                new Option(
+                new OptionDefinition(
                     name: 'foobar',
                     type: new StringType(),
                     help: 'This is some opt help',
@@ -166,7 +166,7 @@ final class LoaderTest extends TestCase
      */
     private function assertRoot(object $target, array $arguments = [], array $options = [], ?string $help = null): void
     {
-        self::assertEquals(new Command(
+        self::assertEquals(new CommandDefinition(
             name: Loader::ROOT_NAME,
             arguments: $arguments,
             options: $options,
@@ -174,7 +174,7 @@ final class LoaderTest extends TestCase
         ), $this->load($target));
     }
 
-    private function load(object $object): Command
+    private function load(object $object): CommandDefinition
     {
         return (new Loader())->load($object);
     }

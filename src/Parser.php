@@ -3,13 +3,20 @@
 namespace PhpTui\CliParser;
 
 use PhpTui\CliParser\Error\ParseError;
-use PhpTui\CliParser\Metadata\Command;
-use PhpTui\CliParser\Type\BooleanType;
+use PhpTui\CliParser\Metadata\Argument;
+use PhpTui\CliParser\Metadata\ArgumentDefinition;
+use PhpTui\CliParser\Metadata\CommandDefinition;
 use PhpTui\CliParser\Type\ListType;
 use RuntimeException;
 
 final class Parser
 {
+    private const T_ARG = 'T_ARG';
+    private const T_OPT = 'T_OPT';
+    private const T_OPT_FLAG = 'T_FLAG';
+    private const T_OPT_SHORT = 'T_OPT_SHORT';
+    private const T_OPT_SHORT_FLAG = 'T_OPT_SHORT_FLAG';
+
     private Loader $loader;
 
     public function __construct(Loader $loader = null)
@@ -22,135 +29,108 @@ final class Parser
      */
     public function parse(object $target, array $args): void
     {
-        if (empty($args)) {
-            throw new RuntimeException(
-                'Command line arguments cannot be empty'
-            );
+        $commandDefinition = $this->loader->load($target);
+        $argumentDefinitions = $commandDefinition->arguments();
+        $commandDefinitions = $commandDefinition->commands();
+
+        while ($arg = array_shift($args)) {
+            $parsed = $this->parseArgument($arg);
+
+            $type = $parsed[0];
+            $value = $parsed[1];
+            $name = $parsed[2] ?? null;
+
+            if ($type === self::T_ARG) {
+                $this->mapArgument(
+                    $commandDefinition,
+                    $target,
+                    $args,
+                    $argumentDefinitions,
+                    $arg
+                );
+            }
+
+
         }
+        // for each arg
+        //
 
-        $script = array_shift($args);
-
-        [$arguments, $optionsToParse] = $this->parseArguments($args);
-
-        $cmd = $this->loader->load($target);
-
-        $firstOptional = null;
-        $firstList = null;
-        $listItems = [];
-        foreach ($cmd->arguments() as $param) {
-            if ($param->required && $firstOptional) {
-                throw new ParseError(sprintf(
-                    'Required argument <%s> cannot be positioned after optional argument <%s>',
-                    $param->name,
-                    $firstOptional->name
-                ));
-            }
-
-            if ($firstList !== null) {
-                throw new ParseError(sprintf(
-                    'No arguments area allowed after list argument <%s>',
-                    $firstList->name
-                ));
-            }
-
-            if ($param->type instanceof ListType) {
-                $target->{$param->name} = $arguments;
-                $arguments = [];
-                $firstList = $param;
-                continue;
-            }
-
-            $argString = array_shift($arguments);
-
-            if (null === $argString) {
-                if ($param->required === true) {
-                    throw new ParseError(sprintf(
-                        'Not enough arguments, need "%s"',
-                        count($cmd->arguments())
-                    ));
-                }
-
-                continue;
-            }
-
-            $target->{$param->name} = $param->type->parse($argString);
-            unset($args[array_search($param->name, $args)]);
-            if ($param->required === false) {
-                $firstOptional = $param;
-            }
-        }
-
-        $cliOptions = $cmd->optionsKeyedByName();
-
-        foreach ($optionsToParse as $name => $optionValue) {
-            if (!isset($cliOptions[$name])) {
-                continue;
-            }
-
-            $option = $cliOptions[$name];
-            if ($optionValue === null && !$option->type instanceof BooleanType) {
-                throw new ParseError(sprintf('Option "%s" of type "%s" must have a value', $option->parseName, $option->type->toString()));
-            }
-            unset($args[array_search($option->name, $args)]);
-            $target->{$option->name} = $option->type->parse($optionValue ?? 'true');
-        }
-
-        $nextCommandName = array_shift($arguments);
-
-        if (null === $nextCommandName) {
-            return;
-        }
-
-        $nextCommand = $cmd->getCommand($nextCommandName);
-        if ($nextCommand) {
-            $this->parse($target->{$nextCommand->name}, $args);
-            return;
-        }
-
-        throw new ParseError(sprintf('Superflous argument with value "%s" provided', $nextCommandName));
     }
 
     /**
-     * @return array{list<string>,array<string,?string>}
+     * @return array{0:self::T_*,1:string,2?:string}
+     */
+    private function parseArgument(string $arg): array
+    {
+        if (substr($arg, 0, 1) !== '-') {
+            return [self::T_ARG, $arg];
+        }
+
+        // long option
+        if (substr($arg, 1, 1) === '-') {
+            $equalPos = strpos($arg, '=');
+            if ($equalPos !== false) {
+                // option with value
+                return [
+                    self::T_OPT,
+                    substr($arg, 2, $equalPos - 2),
+                    substr($arg, strpos($arg, '=') + 1)
+                ];
+            }
+
+            // boolean flag
+            return [
+                self::T_OPT_FLAG,
+                substr($arg, 2)
+            ];
+        }
+
+        // short option
+        $optionName = substr($arg, 1, 1);
+        $optionValueString = substr($arg, 2) ?: null;
+        if ($optionValueString == null) {
+            return [self::T_OPT_SHORT_FLAG, true, $optionName];
+        }
+
+        return [
+            self::T_OPT_SHORT,
+            $optionName,
+            $optionValueString
+        ];
+    }
+
+    /**
+     * @param ArgumentDefinition[] $argumentDefinitions
      * @param list<string> $args
      */
-    private function parseArguments(array $args): array
+    private function mapArgument(
+        CommandDefinition $commandDefinition,
+        object $target,
+        array &$args,
+        array &$argumentDefinitions,
+        string $arg
+    ): void
     {
-        $arguments = [];
-        $optionsToParse = [];
-        $shortOptions = [];
-        
-        foreach ($args as $arg) {
-            if (substr($arg, 0, 1) !== '-') {
-                $arguments[] = $arg;
-                continue;
+        $argumentDefinition = array_shift($argumentDefinitions);
+
+        if ($argumentDefinition instanceof ArgumentDefinition) {
+            if ($argumentDefinition->type instanceof ListType) {
+                $target->{$argumentDefinition->name} = [$arg, ...$args];
+                $args = [];
+                return;
             }
-        
-            if (substr($arg, 0, 1) === '-') {
-                $nameOffset = 1;
-                if (substr($arg, 1, 1) === '-') {
-                    // long option
-                    $equalPos = strpos($arg, '=');
-                    if ($equalPos !== false) {
-                        // option with value
-                        $optionName = substr($arg, 2, $equalPos - 2);
-                        $optionValueString = substr($arg, strpos($arg, '=') + 1);
-                    } else {
-                        // boolean flag
-                        $optionName = substr($arg, 2);
-                        $optionValueString = null;
-                    }
-                } else {
-                    // short option
-                    $optionName = substr($arg, 1, 1);
-                    $optionValueString = substr($arg, 2);
-                }
-                $optionsToParse[$optionName] = $optionValueString;
-                continue;
-            }
-        
-            $shortOptions[substr($arg, 1)] = $arg;
+            $target->{$argumentDefinition->name} = $argumentDefinition->type->parse($arg);
+            return;
         }
-        return [$arguments, $optionsToParse];
+
+        $subCommandDefinition = $commandDefinition->getCommand($arg);
+        if (null !== $subCommandDefinition) {
+            $this->parse($subCommandDefinition, $args);
+        }
+        throw new ParseError(sprintf(
+            'Extra argument with value "%s" provided for command <%s>',
+            $arg,
+            $commandDefinition->name
+        ));
     }
 }

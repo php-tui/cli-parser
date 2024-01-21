@@ -4,7 +4,7 @@ namespace PhpTui\CliParser\Metadata;
 
 use PhpTui\CliParser\Type\Type;
 
-final class Option
+final class OptionDefinition
 {
     public readonly string $parseName;
 

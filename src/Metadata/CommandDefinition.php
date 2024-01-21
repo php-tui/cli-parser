@@ -2,7 +2,7 @@
 
 namespace PhpTui\CliParser\Metadata;
 
-final class Command implements ArgumentLike
+final class CommandDefinition implements ArgumentLike
 {
     /**
      * @param list<Argument|Command> $arguments
@@ -20,7 +20,7 @@ final class Command implements ArgumentLike
      */
     public function commands(): array
     {
-        return array_filter($this->arguments, fn (ArgumentLike $a) => $a instanceof Command);
+        return array_filter($this->arguments, fn (ArgumentLike $a) => $a instanceof CommandDefinition);
     }
     /**
      * @return Argument[]
@@ -29,7 +29,7 @@ final class Command implements ArgumentLike
     {
         return array_filter(
             $this->arguments,
-            fn (ArgumentLike $a) => $a instanceof Argument
+            fn (ArgumentLike $a) => $a instanceof ArgumentDefinition
         );
     }
 
@@ -47,7 +47,7 @@ final class Command implements ArgumentLike
     public function optionsKeyedByLongName(): array
     {
         return array_combine(array_map(
-            fn (Option $option) => $option->parseName,
+            fn (OptionDefinition $option) => $option->parseName,
             $this->options
         ), array_values($this->options));
     }
@@ -58,16 +58,16 @@ final class Command implements ArgumentLike
     {
         $shortOptions = array_filter(
             $this->options,
-            fn (Option $short) => $short->short !== null,
+            fn (OptionDefinition $short) => $short->short !== null,
         );
 
         return array_combine(array_map(
-            fn (Option $option) => (string)$option->short,
+            fn (OptionDefinition $option) => (string)$option->short,
             $shortOptions,
         ), array_values($shortOptions));
     }
 
-    public function getCommand(string $name):?Command
+    public function getCommand(string $name):?CommandDefinition
     {
         foreach ($this->commands() as $command) {
             if ($command->name === $name) {

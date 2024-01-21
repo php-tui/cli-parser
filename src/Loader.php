@@ -5,9 +5,9 @@ namespace PhpTui\CliParser;
 use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
-use PhpTui\CliParser\Metadata\Argument;
-use PhpTui\CliParser\Metadata\Command;
-use PhpTui\CliParser\Metadata\Option;
+use PhpTui\CliParser\Metadata\ArgumentDefinition;
+use PhpTui\CliParser\Metadata\CommandDefinition;
+use PhpTui\CliParser\Metadata\OptionDefinition;
 use PhpTui\CliParser\Type\TypeFactory;
 use ReflectionAttribute;
 use ReflectionClass;
@@ -19,12 +19,12 @@ final class Loader
 {
     const ROOT_NAME = '__ROOT__';
 
-    public function load(object $object): Command
+    public function load(object $object): CommandDefinition
     {
         return $this->loadCommand($object, null);
     }
 
-    private function loadCommand(object $object, ?ReflectionProperty $parent): Command
+    private function loadCommand(object $object, ?ReflectionProperty $parent): CommandDefinition
     {
         $reflection = new ReflectionObject($object);
 
@@ -54,7 +54,7 @@ final class Loader
             }
         }
 
-        return new Command(
+        return new CommandDefinition(
             name: $name ?? self::ROOT_NAME,
             arguments: $args,
             options: $options,
@@ -65,13 +65,13 @@ final class Loader
     /**
      * @param ReflectionAttribute<Arg> $arg
      */
-    private function loadArg(ReflectionProperty $property, ReflectionAttribute $arg): Argument
+    private function loadArg(ReflectionProperty $property, ReflectionAttribute $arg): ArgumentDefinition
     {
         $attribute = $arg->newInstance();
         $name = $property->getName();
         $type = TypeFactory::fromReflectionType($property->getType());
 
-        return new Argument(
+        return new ArgumentDefinition(
             name: $name,
             type: $type,
             help: $attribute->help,
@@ -82,12 +82,12 @@ final class Loader
     /**
      * @param ReflectionAttribute<Opt> $opt
      */
-    private function loadOption(ReflectionProperty $property, ReflectionAttribute $opt): Option
+    private function loadOption(ReflectionProperty $property, ReflectionAttribute $opt): OptionDefinition
     {
         $attribute = $opt->newInstance();
         $parseName = self::resolveName($property->getName(), $attribute);
         $type = TypeFactory::fromReflectionType($property->getType());
-        return new Option(
+        return new OptionDefinition(
             name: $property->getName(),
             short: $this->parseShortName($attribute->short),
             type: $type,
