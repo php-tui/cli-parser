@@ -147,11 +147,17 @@ final class Parser
 
         if ($argumentDefinition instanceof ArgumentDefinition) {
             if ($argumentDefinition->type instanceof ListType) {
-                $target->{$argumentDefinition->name} = [$arg, ...$args];
+                $target->{$argumentDefinition->name} = array_map(
+                    fn (string $arg) => $argumentDefinition->type->itemType()->parse($arg),
+                    [$arg, ...$args]
+                );
                 $args = [];
+
                 return true;
             }
+
             $target->{$argumentDefinition->name} = $argumentDefinition->type->parse($arg);
+
             return false;
         }
 

@@ -9,6 +9,7 @@ use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\CommandDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinition;
+use PhpTui\CliParser\Type\ListType;
 use PhpTui\CliParser\Type\TypeFactory;
 use ReflectionAttribute;
 use ReflectionObject;
@@ -73,6 +74,10 @@ final class Loader
         $attribute = $arg->newInstance();
         $name = $property->getName();
         $type = TypeFactory::fromReflectionType($property->getType());
+
+        if ($type instanceof ListType) {
+            $type = new ListType(TypeFactory::fromString($attribute->type));
+        }
 
         return new ArgumentDefinition(
             name: $name,

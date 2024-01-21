@@ -20,6 +20,11 @@ final class ListType implements Type
         return sprintf('list<%s>', $this->type->toString());
     }
 
+    public function itemType(): Type
+    {
+        return $this->type;
+    }
+
     public function parse(string $value): mixed
     {
         throw new \Exception('nope');

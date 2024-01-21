@@ -34,7 +34,16 @@ final class TypeFactory
             ));
         }
 
-        return match ($type->getName()) {
+        return self::fromString($type->getName());
+    }
+
+    /**
+     * @return Type<mixed>
+     */
+    public static function fromString(?string $name): Type
+    {
+        return match ($name) {
+            null => new MixedType(),
             'string' => new StringType(),
             'int' => new IntegerType(),
             'bool' => new BooleanType(),
@@ -42,9 +51,8 @@ final class TypeFactory
             'array' => new ListType(new StringType()),
             default => throw new RuntimeException(sprintf(
                 'Do not know how to parse type "%s"',
-                $type->getName()
+                $name
             )),
         };
-
     }
 }
