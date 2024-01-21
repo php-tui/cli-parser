@@ -43,8 +43,15 @@ final class ParserTest extends TestCase
                     #[Arg()]
                     public string $foobar;
                 };
-                self::parse($target, []);
-                self::assertEquals('foobar', $target->foobar);
+                try {
+                    self::parse($target, []);
+                    self::fail('Exception not thrown');
+                } catch (ParseError $e) {
+                    self::assertStringContainsString(
+                        'Missing required argument(s) <foobar> in command "__ROOT__"',
+                        $e->getMessage()
+                    );
+                }
             },
         ];
         yield '<foobar> <barfoo>' => [

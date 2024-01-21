@@ -92,6 +92,18 @@ final class Parser
             ));
         }
 
+        $requiredArguments = array_filter(
+            $argumentDefinitions,
+            fn (ArgumentDefinition $definition) => $definition->required,
+        );
+        if (count($requiredArguments)) {
+            throw new ParseError(sprintf(
+                'Missing required argument(s) <%s> in command "%s"',
+                implode('>, <', array_map(fn (ArgumentDefinition $a) => $a->name, $requiredArguments)),
+                $commandDefinition->name
+            ));
+        }
+
         return $target;
     }
 
