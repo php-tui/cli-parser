@@ -49,8 +49,6 @@ We can then parse any CLI arguments with:
 (new Parser())->parse($cli, $argv);
 ```
 
-
-
 Parsing
 -------
 
@@ -61,5 +59,5 @@ Parsing
 - [x] `--option=foo` Option with value
 - [x] `-o` Short option flag
 - [x] `-ofoo` Short option with value
-- [ ] branching arguments
+- [x] branching arguments
 
