@@ -9,7 +9,7 @@ final class FloatType implements Type
 {
     public function toString(): string
     {
-        return 'integer';
+        return 'float';
     }
 
     public function parse(string $value): mixed

@@ -6,6 +6,7 @@ use Closure;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\TextUI\Command\Command;
 use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
@@ -440,21 +441,19 @@ final class ParserTest extends TestCase
             ) {}
         };
 
-        self::parse($cli, ['rm', '--force', '-r', 'path1.php', 'path2.php']);
-        self::assertTrue($cli->rmCmd->force);
-        self::assertTrue($cli->rmCmd->recursive);
+        $cmd = self::parse($cli, ['rm', '--force', '-r', 'path1.php', 'path2.php']);
+        self::assertTrue($cmd->force);
+        self::assertTrue($cmd->recursive);
         self::assertSame(['path1.php', 'path2.php'], $cli->rmCmd->paths);
-        self::parse($cli, ['ls', 'path1.php', 'path2.php']);
-        self::assertTrue($cli->rmCmd->force);
-        self::assertTrue($cli->rmCmd->recursive);
-        self::assertSame(['path1.php', 'path2.php'], $cli->lsCmd->paths);
+        $cmd = self::parse($cli, ['ls', 'path1.php', 'path2.php']);
+        self::assertSame(['path1.php', 'path2.php'], $cmd->paths);
     }
 
     /**
      * @param list<string> $args
      */
-    private static function parse(object $target, array $args): void
+    private static function parse(object $target, array $args): object
     {
-        (new Parser())->parse($target, $args);
+        return (new Parser())->parse($target, $args);
     }
 }

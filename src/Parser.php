@@ -26,15 +26,21 @@ final class Parser
     }
 
     /**
+     * Parse the CLI arguments into the given CLI object and return the
+     * resolved command object.
+     *
      * @param string[] $args
      */
-    public function parse(object $target, array $args): void
+    public function parse(object $target, array $args): object
     {
         $commandDefinition = $this->loader->load($target);
-        $this->parseCommand($target, $commandDefinition, $args);
+        return $this->parseCommand($target, $commandDefinition, $args);
     }
 
-    public function parseCommand(object $target, CommandDefinition $commandDefinition, array $args): void
+    /**
+     * @param list<string> $args
+     */
+    public function parseCommand(object $target, CommandDefinition $commandDefinition, array $args): object
     {
         $argumentDefinitions = $commandDefinition->arguments();
         $commandDefinitions = $commandDefinition->commands();
@@ -49,15 +55,15 @@ final class Parser
             $name = $parsed[2] ?? null;
 
             if ($type === self::T_ARG) {
-                $stopParsing = $this->mapArgument(
+                $newTarget = $this->mapArgument(
                     $commandDefinition,
                     $target,
                     $args,
                     $argumentDefinitions,
                     $arg
                 );
-                if ($stopParsing) {
-                    return;
+                if ($newTarget !== $target) {
+                    return $newTarget;
                 }
                 continue;
             }
@@ -75,18 +81,18 @@ final class Parser
                 continue;
             }
             if ($type === self::T_OPT_SHORT_FLAG) {
-                $this->mapShortOptionFlag($commandDefinition, $target, $name ?? '', $value);
+                $this->mapShortOptionFlag($commandDefinition, $target, $name ?? '');
                 continue;
             }
 
+            /** @phpstan-ignore-next-line */
             throw new RuntimeException(sprintf(
                 'Do not know how to map argument of type "%s"',
                 $type
             ));
         }
-        // for each arg
-        //
 
+        return $target;
     }
 
     /**
@@ -141,7 +147,7 @@ final class Parser
         array &$args,
         array &$argumentDefinitions,
         string $arg
-    ): bool
+    ): object
     {
         $argumentDefinition = array_shift($argumentDefinitions);
 
@@ -153,12 +159,12 @@ final class Parser
                 );
                 $args = [];
 
-                return true;
+                return $target;
             }
 
             $target->{$argumentDefinition->name} = $argumentDefinition->type->parse($arg);
 
-            return false;
+            return $target;
         }
 
         $subCommandDefinition = $commandDefinition->getCommand($arg);
@@ -168,7 +174,7 @@ final class Parser
                 $subCommandDefinition,
                 $args
             );
-            return true;
+            return $target->{$subCommandDefinition->propertyName};
         }
         throw new ParseError(sprintf(
             'Extra argument with value "%s" provided for command <%s>',
