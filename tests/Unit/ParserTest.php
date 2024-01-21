@@ -265,6 +265,25 @@ final class ParserTest extends TestCase
                 self::assertEquals(['foo.php', 'bar.php'], $cli->ls->paths);
             },
         ];
+        yield 'ls <path:int> ...' => [
+            function (): void {
+                $cli = new class(
+                    new #[Cmd()] class {
+                        /** @var list<int> */
+                        #[Arg(type: 'int')]
+                        public array $paths = [];
+                    },
+                ) {
+                    public function __construct(
+                        public object $ls,
+                    ) {}
+                };
+
+                self::parse($cli, ['ls', '1', '2']);
+                /** @phpstan-ignore-next-line */
+                self::assertSame([1, 2], $cli->ls->paths);
+            },
+        ];
         yield '--flag ls <path> ...' => [
             function (): void {
                 $cli = new class(
@@ -411,7 +430,7 @@ final class ParserTest extends TestCase
             },
             new #[Cmd('ls', help: 'List files')] class {
                 /** @var list<string> */
-                #[Opt(help: 'Paths to list', name: 'path', type: 'path')]
+                #[Arg(help: 'Paths to list', name: 'path', /** type: 'path' */)]
                 public array $paths = [];
             },
         ) {
@@ -425,6 +444,10 @@ final class ParserTest extends TestCase
         self::assertTrue($cli->rmCmd->force);
         self::assertTrue($cli->rmCmd->recursive);
         self::assertSame(['path1.php', 'path2.php'], $cli->rmCmd->paths);
+        self::parse($cli, ['ls', 'path1.php', 'path2.php']);
+        self::assertTrue($cli->rmCmd->force);
+        self::assertTrue($cli->rmCmd->recursive);
+        self::assertSame(['path1.php', 'path2.php'], $cli->lsCmd->paths);
     }
 
     /**

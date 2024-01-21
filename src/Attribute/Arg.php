@@ -11,6 +11,7 @@ final class Arg
         public readonly ?string $name = null,
         public readonly ?string $help = null,
         public readonly bool $required = true,
+        public readonly ?string $type = null,
     ) {
     }
 
