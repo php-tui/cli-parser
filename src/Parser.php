@@ -31,6 +31,11 @@ final class Parser
     public function parse(object $target, array $args): void
     {
         $commandDefinition = $this->loader->load($target);
+        $this->parseCommand($target, $commandDefinition, $args);
+    }
+
+    public function parseCommand(object $target, CommandDefinition $commandDefinition, array $args): void
+    {
         $argumentDefinitions = $commandDefinition->arguments();
         $commandDefinitions = $commandDefinition->commands();
 
@@ -148,7 +153,11 @@ final class Parser
 
         $subCommandDefinition = $commandDefinition->getCommand($arg);
         if (null !== $subCommandDefinition) {
-            $this->parse($target->{$subCommandDefinition->name}, $args);
+            $this->parseCommand(
+                $target->{$subCommandDefinition->propertyName},
+                $subCommandDefinition,
+                $args
+            );
             return true;
         }
         throw new ParseError(sprintf(

@@ -58,6 +58,7 @@ final class Loader
 
         return new CommandDefinition(
             name: $name ?? self::ROOT_NAME,
+            propertyName: $parent?->getName(),
             arguments: $args,
             options: $options,
             help: $help,

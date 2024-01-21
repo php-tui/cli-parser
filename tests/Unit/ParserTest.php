@@ -350,31 +350,40 @@ final class ParserTest extends TestCase
                 self::assertEquals('bar.php', $cli->ls->path);
             },
         ];
-        // yield 'user <name> set-phone 0123412341234 --home' => [
-        //     function (): void {
-        //         $cli = new class(
-        //             new #[Cmd()] class {
-        //                 #[Arg()]
-        //                 public string $name,
-        //             },
-        //         ) {
-        //             public function __construct(
-        //                 public object $user,
-        //             ) {}
-        //         };
+        yield 'user <name> set-phone 0123412341234 --home' => [
+            function (): void {
+                $cli = new class(
+                    new #[Cmd(name: 'user')] class(
+                        '',
+                        new #[Cmd(name: 'set-phone')] class {
+                            #[Arg()]
+                            public int $number;
+                            #[Opt()]
+                            public bool $home;
+                        }
+                    ) {
+                        public function __construct(
+                            #[Arg()]
+                            public string $name,
+                            public object $setPhone,
+                        ) {}
+                    },
+                ) {
+                    public function __construct(
+                        public object $user,
+                    ) {}
+                };
 
-        //         self::parse($cli, ['ls', 'bar.php', '--flag', ]);
-        //         /** @phpstan-ignore-next-line */
-        //         self::assertEquals(true, $cli->ls->flag);
-        //         /** @phpstan-ignore-next-line */
-        //         self::assertEquals('bar.php', $cli->ls->path);
-        //     },
-        // ];
+                self::parse($cli, ['user', 'daniel', 'set-phone', '0123412341234', '--home']);
+                self::assertEquals(true, $cli->user->setPhone->home);
+                /** @phpstan-ignore-next-line */
+                self::assertEquals('daniel', $cli->user->name);
+            },
+        ];
     }
 
     public function testExample(): void
     {
-        $this->markTestSkipped('TODO');
         $cli = new #[Cmd('My App', help: 'Application to list and remove files')] class(
             new #[Cmd('rm', help: 'Remove files')] class {
                 #[Opt(help: 'Force removal')]

@@ -26,6 +26,7 @@ final class CommandDefinition implements ArgumentLike
      */
     public function __construct(
         public readonly string $name,
+        public readonly ?string $propertyName = null,
         public readonly array $arguments = [],
         array $options = [],
         public readonly ?string $help = null,

@@ -145,6 +145,7 @@ final class LoaderTest extends TestCase
                 new CommandDefinition(
                     name: 'subCommand',
                     help: 'This is a sub-command',
+                    propertyName: 'subCommand',
                     arguments: [
                         new ArgumentDefinition(name: 'url', type: new StringType()),
                     ]
@@ -164,10 +165,11 @@ final class LoaderTest extends TestCase
      * @param array<int,Argument|Command> $arguments
      * @param array<int,Option> $options
      */
-    private function assertRoot(object $target, array $arguments = [], array $options = [], ?string $help = null): void
+    private function assertRoot(object $target, array $arguments = [], array $options = [], ?string $help = null, ?string $propertyName = null): void
     {
         self::assertEquals(new CommandDefinition(
             name: Loader::ROOT_NAME,
+            propertyName: $propertyName,
             arguments: $arguments,
             options: $options,
             help: $help,
