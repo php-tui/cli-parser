@@ -90,4 +90,18 @@ final class CommandDefinition implements ArgumentLike
         return $this->options;
     }
 
+    public function getShortOption(string $name): OptionDefinition
+    {
+        if (isset($this->optionsByShort[$name])) {
+            return $this->optionsByShort[$name];
+        }
+
+        throw new ParseError(sprintf(
+            'Unknown short option -%s for command "%s", known options: %s',
+            $name,
+            $this->name,
+            implode(', ', array_keys($this->optionsByShort))
+        ));
+    }
+
 }

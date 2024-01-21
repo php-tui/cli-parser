@@ -6,6 +6,7 @@ use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Metadata\Argument;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\CommandDefinition;
+use PhpTui\CliParser\Type\BooleanType;
 use PhpTui\CliParser\Type\ListType;
 use RuntimeException;
 
@@ -56,9 +57,23 @@ final class Parser
                 continue;
             }
 
-            if ($type === self::T_OPT) {
-                $this->mapOption($commandDefinition, $target, $name, $value);
+            if ($type === self::T_OPT_FLAG) {
+                $this->mapFlag($commandDefinition, $target, $value);
+                continue;
             }
+            if ($type === self::T_OPT) {
+                $this->mapOption($commandDefinition, $target, $name ?? '', $value);
+                continue;
+            }
+            if ($type === self::T_OPT_SHORT) {
+                $this->mapShortOption($commandDefinition, $target, $name ?? '', $value);
+                continue;
+            }
+
+            throw new RuntimeException(sprintf(
+                'Do not know how to map argument of type "%s"',
+                $type
+            ));
         }
         // for each arg
         //
@@ -66,7 +81,7 @@ final class Parser
     }
 
     /**
-     * @return array{0:self::T_*,1:(bool|string),2?:string}
+     * @return array{0:self::T_*,1:(string),2?:string}
      */
     private function parseArgument(string $arg): array
     {
@@ -97,13 +112,13 @@ final class Parser
         $optionName = substr($arg, 1, 1);
         $optionValueString = substr($arg, 2) ?: null;
         if ($optionValueString == null) {
-            return [self::T_OPT_SHORT_FLAG, true, $optionName];
+            return [self::T_OPT_SHORT_FLAG, '', $optionName];
         }
 
         return [
             self::T_OPT_SHORT,
+            $optionValueString,
             $optionName,
-            $optionValueString
         ];
     }
 
@@ -152,5 +167,17 @@ final class Parser
     {
         $option = $commandDefinition->getOption($name);
         $target->{$option->name} = $option->type->parse($value);
+    }
+
+    private function mapShortOption(CommandDefinition $commandDefinition, object $target, string $name, string $value)
+    {
+        $option = $commandDefinition->getShortOption($name);
+        $target->{$option->name} = $option->type->parse($value);
+    }
+
+    private function mapFlag(CommandDefinition $commandDefinition, object $target, string $name): void
+    {
+        $option = $commandDefinition->getOption($name);
+        $target->{$option->name} = true;
     }
 }
