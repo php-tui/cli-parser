@@ -37,6 +37,16 @@ final class ParserTest extends TestCase
                 self::assertEquals('foobar', $target->foobar);
             },
         ];
+        yield '<foobar> required argument not provided' => [
+            function (): void {
+                $target = new class {
+                    #[Arg()]
+                    public string $foobar;
+                };
+                self::parse($target, []);
+                self::assertEquals('foobar', $target->foobar);
+            },
+        ];
         yield '<foobar> <barfoo>' => [
             function (): void {
                 $target = new class {
@@ -229,6 +239,18 @@ final class ParserTest extends TestCase
                 self::parse($target, ['--integers=1,2,3']);
 
                 self::assertSame([1, 2, 3], $target->integers);
+            },
+        ];
+        yield '--integer=1,2,3 cast to float' => [
+            function (): void {
+                $target = new class {
+                    /** @var int[] */
+                    #[Opt(type: 'float')]
+                    public array $integers = [];
+                };
+                self::parse($target, ['--integers=1,2,3']);
+
+                self::assertSame([1.0, 2.0, 3.0], $target->integers);
             },
         ];
         yield '--integer=1,2,3 --on1' => [

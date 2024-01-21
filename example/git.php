@@ -5,51 +5,83 @@ require __DIR__ . '/../vendor/autoload.php';
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Attribute\Arg;
+use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Loader;
 use PhpTui\CliParser\Parser;
 use PhpTui\CliParser\Printer\AsciiPrinter;
 
-class GitArgs {
+#[Cmd(name: 'Git')]
+class GitCmd {
 
     #[Cmd(help: 'Clone a repository into a new directory')]
-    public GitCloneArgs $clone;
+    public CloneCmd $clone;
 
     #[Cmd(help: 'Create an empty git repository')]
-    public GitInitArgs $init;
+    public InitCmd $init;
 
     #[Opt(short: 'v', long: 'version', help: 'Create an empty git repository')]
-    public bool $version;
+    public bool $version = false;
 
     #[Opt(help: 'Show help')]
-    public bool $help;
+    public bool $help = false;
 
     #[Opt(short: 'C', help: 'Run git as ig it were executed in this path')]
     public string $cwd;
 }
 
-class GitCloneArgs {
-    #[Arg(help: 'Repository to clone')]
+class CloneCmd {
+    #[Arg(help: 'Repository to clone', required: true)]
     public string $repo;
 
     #[Opt(name: 'recurse-submodules', short: 'R', help: 'Initialize submodules in the clone')]
-    public string $recurseSubModules;
+    public bool $recurseSubModules = false;
 }
 
-class GitInitArgs {
+class InitCmd {
     #[Arg(help: 'Repository to clone')]
     public string $repo;
 
     #[Opt(name: 'recurse-submodules', help: 'Initialize submodules in the clone')]
-    public string $recurseSubModules;
+    public bool $recurseSubModules;
 }
 
-$cli = new GitArgs();
-$cli->init = new GitInitArgs();
-$cli->clone = new GitCloneArgs();
+$cli = new GitCmd();
+$cli->init = new InitCmd();
+$cli->clone = new CloneCmd();
 
-$cmd = (new Loader())->load($cli);
-echo (new AsciiPrinter())->print($cmd);
+$definition = (new Loader())->load($cli);
 
-dump($argv);
-(new Parser())->parse($cli, $argv);
-dump($cli);
+array_shift($argv);
+
+try {
+    $cmd = (new Parser())->parse($cli, $argv);
+} catch (ParseError $e) {
+    println($e->getMessage());
+    exit(1);
+}
+
+if ($cli->help) {
+    println((new AsciiPrinter())->print($definition));
+    exit(0);
+}
+if ($cli->version) {
+    println('1.0.0-pre');
+    exit(0);
+}
+if ($cmd instanceof GitCmd) {
+    println((new AsciiPrinter())->print($definition));
+}
+if ($cmd instanceof CloneCmd) {
+    println(sprintf('Git cloning %s...', $cmd->repo));
+    if ($cmd->recurseSubModules) {
+        println(sprintf('... and recursing submodules', $cmd->repo));
+    }
+}
+if ($cmd instanceof InitCmd) {
+    dump($cmd);
+}
+
+function println(string $message): void
+{
+echo $message ."\n";
+}
