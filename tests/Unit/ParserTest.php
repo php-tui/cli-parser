@@ -207,6 +207,42 @@ final class ParserTest extends TestCase
                 self::assertSame(true, $target->on1);
             },
         ];
+        yield '--integer=1,2,3' => [
+            function (): void {
+                $target = new class {
+                    /** @var string[] */
+                    #[Opt()]
+                    public array $integers = [];
+                };
+                self::parse($target, ['--integers=1,2,3']);
+
+                self::assertSame(['1', '2', '3'], $target->integers);
+            },
+        ];
+        yield '--integer=1,2,3 cast to int' => [
+            function (): void {
+                $target = new class {
+                    /** @var int[] */
+                    #[Opt(type: 'int')]
+                    public array $integers = [];
+                };
+                self::parse($target, ['--integers=1,2,3']);
+
+                self::assertSame([1, 2, 3], $target->integers);
+            },
+        ];
+        yield '--integer=1,2,3 --on1' => [
+            function (): void {
+                $target = new class {
+                    /** @var string[] */
+                    #[Opt()]
+                    public array $integers = [];
+                };
+                self::parse($target, ['--integers=1,2,3']);
+
+                self::assertSame(['1', '2', '3'], $target->integers);
+            },
+        ];
         yield '--greeting="hello world"' => [
             function (): void {
                 $target = new class {

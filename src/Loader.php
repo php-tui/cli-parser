@@ -95,6 +95,9 @@ final class Loader
         $attribute = $opt->newInstance();
         $parseName = self::resolveName($property->getName(), $attribute);
         $type = TypeFactory::fromReflectionType($property->getType());
+        if ($type instanceof ListType) {
+            $type = new ListType(TypeFactory::fromString($attribute->type));
+        }
         return new OptionDefinition(
             name: $property->getName(),
             short: $this->parseShortName($attribute->short),

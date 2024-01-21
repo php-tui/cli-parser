@@ -27,6 +27,6 @@ final class ListType implements Type
 
     public function parse(string $value): mixed
     {
-        throw new \Exception('nope');
+        throw new \Exception('List type does not support parsing');
     }
 }

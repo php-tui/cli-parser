@@ -191,6 +191,13 @@ final class Parser
     ): void
     {
         $option = $commandDefinition->getOption($name);
+        if ($option->type instanceof ListType) {
+            $target->{$option->name} = array_map(
+                fn (string $arg) => $option->type->itemType()->parse($arg),
+                explode(',', $value)
+            );
+            return;
+        }
         $target->{$option->name} = $option->type->parse($value);
     }
 
