@@ -48,7 +48,7 @@ final class AsciiPrinterTest extends TestCase
         );
 
         self::assertEquals(<<<'EOT'
-            root <path> [--change-directory|-c]
+            root <path> [--change-directory|-c] 
 
             Options:
 
@@ -56,7 +56,7 @@ final class AsciiPrinterTest extends TestCase
 
             Commands:
 
-              operate [--left]
+              operate [--left] Sub command for operations
             EOT, str_replace("\t", ' ', $printed));
     }
 }

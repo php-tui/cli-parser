@@ -13,10 +13,8 @@ use PhpTui\CliParser\Printer\AsciiPrinter;
 #[Cmd(name: 'Git')]
 class GitCmd {
 
-    #[Cmd(help: 'Clone a repository into a new directory')]
     public CloneCmd $clone;
 
-    #[Cmd(help: 'Create an empty git repository')]
     public InitCmd $init;
 
     #[Opt(short: 'v', long: 'version', help: 'Create an empty git repository')]
@@ -29,6 +27,7 @@ class GitCmd {
     public string $cwd;
 }
 
+#[Cmd(help: 'Clone a repository into a new directory')]
 class CloneCmd {
     #[Arg(help: 'Repository to clone', required: true)]
     public string $repo;
@@ -37,6 +36,7 @@ class CloneCmd {
     public bool $recurseSubModules = false;
 }
 
+#[Cmd(help: 'Create an empty git repository')]
 class InitCmd {
     #[Arg(help: 'Repository to clone')]
     public string $repo;

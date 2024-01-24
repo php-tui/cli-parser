@@ -14,6 +14,9 @@ use PhpTui\CliParser\Parser;
 
 final class ParserTest extends TestCase
 {
+    /**
+     * @param Closure(): void $test
+     */
     #[DataProvider('provideArguments')]
     #[DataProvider('provideOptions')]
     #[DataProvider('provideNestedCommands')]
@@ -21,6 +24,7 @@ final class ParserTest extends TestCase
     {
         $test();
     }
+
     /**
      * @return Generator<string,array{Closure():void}>
      */

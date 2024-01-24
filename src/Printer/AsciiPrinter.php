@@ -59,15 +59,15 @@ final class AsciiPrinter
         foreach ($command->arguments() as $argument) {
             $out[] = sprintf('<%s>', $argument->name);
         }
+        $options = [];
         foreach ($command->options() as $option) {
-            $out[] = sprintf('[--%s%s]', $option->parseName, $option->short ? sprintf('|-%s', $option->short) : '');
+            $options[] = sprintf('[--%s%s]', $option->parseName, $option->short ? sprintf('|-%s', $option->short) : '');
         }
 
-        foreach ($command->commands() as $command) {
+        $out[] = implode(' ', $options);
+        $out[] = $command->help;
 
-        }
-
-        return $this->indent(implode(' ', $out), $level);
+        return $this->indent(implode("\t", $out), $level);
     }
 
     private function indent(string $string, int $level): string
@@ -79,9 +79,9 @@ final class AsciiPrinter
     {
         $out = [];
         if ($option->short) {
-            $out[] = sprintf("-%s, --%s\t", $option->short, $option->parseName);
+            $out[] = sprintf("%2s, --%s\t", '-'.$option->short, $option->parseName);
         } else {
-            $out[] = sprintf("--%s\t", $option->parseName);
+            $out[] = sprintf("    --%s\t", $option->parseName);
         }
         if ($option->help) {
             $out[] = $option->help;
