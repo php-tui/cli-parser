@@ -198,7 +198,7 @@ final class Parser
         string $name,
         string $value
     ): void {
-        $option = $commandDefinition->getOption($name);
+        $option = $commandDefinition->options()->get($name);
         if ($option->type instanceof ListType) {
             $target->{$option->name} = array_map(
                 fn (string $arg) => $option->type->itemType()->parse($arg),
@@ -211,19 +211,19 @@ final class Parser
 
     private function mapShortOption(CommandDefinition $commandDefinition, object $target, string $name, string $value): void
     {
-        $option = $commandDefinition->getShortOption($name);
+        $option = $commandDefinition->options()->shortOption($name);
         $target->{$option->name} = $option->type->parse($value);
     }
 
     private function mapFlag(CommandDefinition $commandDefinition, object $target, string $name): void
     {
-        $option = $commandDefinition->getOption($name);
+        $option = $commandDefinition->options()->get($name);
         $target->{$option->name} = true;
     }
 
     private function mapShortOptionFlag(CommandDefinition $commandDefinition, object $target, string $name): void
     {
-        $option = $commandDefinition->getShortOption($name);
+        $option = $commandDefinition->options()->shortOption($name);
         $target->{$option->name} = true;
     }
 }

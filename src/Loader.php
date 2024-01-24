@@ -9,6 +9,7 @@ use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\CommandDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinition;
+use PhpTui\CliParser\Metadata\OptionDefinitions;
 use PhpTui\CliParser\Type\ListType;
 use PhpTui\CliParser\Type\TypeFactory;
 use ReflectionAttribute;
@@ -61,7 +62,7 @@ final class Loader
             name: $name ?? self::ROOT_NAME,
             propertyName: $parent?->getName(),
             arguments: $args,
-            options: $options,
+            options: new OptionDefinitions($options),
             help: $help,
         );
     }

@@ -10,6 +10,7 @@ use PhpTui\CliParser\Loader;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\CommandDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinition;
+use PhpTui\CliParser\Metadata\OptionDefinitions;
 use PhpTui\CliParser\Type\IntegerType;
 use PhpTui\CliParser\Type\StringType;
 
@@ -171,7 +172,7 @@ final class LoaderTest extends TestCase
             name: Loader::ROOT_NAME,
             propertyName: $propertyName,
             arguments: $arguments,
-            options: $options,
+            options: new OptionDefinitions($options),
             help: $help,
         ), $this->load($target));
     }

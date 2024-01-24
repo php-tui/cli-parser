@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\CommandDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinition;
+use PhpTui\CliParser\Metadata\OptionDefinitions;
 use PhpTui\CliParser\Printer\AsciiPrinter;
 use PhpTui\CliParser\Type\IntegerType;
 use PhpTui\CliParser\Type\StringType;
@@ -26,23 +27,23 @@ final class AsciiPrinterTest extends TestCase
                     new CommandDefinition(
                         name: 'operate',
                         help: 'Sub command for operations',
-                        options: [
+                        options: new OptionDefinitions([
                             new OptionDefinition(
                                 name: 'left',
                                 type: new StringType(),
                                 help: 'Operate to the left',
                             ),
-                        ]
+                        ])
                     ),
                 ],
-                options: [
+                options: new OptionDefinitions([
                     new OptionDefinition(
                         name: 'change-directory',
                         type: new IntegerType(),
                         short: 'c',
                         help: 'Change the directory to another one',
                     )
-                ],
+                ]),
                 help: null
             ),
         );
