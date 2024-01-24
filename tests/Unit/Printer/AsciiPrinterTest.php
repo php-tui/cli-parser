@@ -4,7 +4,9 @@ namespace PhpTui\CliParser\Tests\Unit\Printer;
 
 use PHPUnit\Framework\TestCase;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
+use PhpTui\CliParser\Metadata\ArgumentDefinitions;
 use PhpTui\CliParser\Metadata\CommandDefinition;
+use PhpTui\CliParser\Metadata\CommandDefinitions;
 use PhpTui\CliParser\Metadata\OptionDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinitions;
 use PhpTui\CliParser\Printer\AsciiPrinter;
@@ -18,12 +20,14 @@ final class AsciiPrinterTest extends TestCase
         $printed = (new AsciiPrinter())->print(
             new CommandDefinition(
                 name: 'root',
-                arguments: [
+                arguments: new ArgumentDefinitions([
                     new ArgumentDefinition(
                         name: 'path',
                         type: new StringType(),
                         help: 'Path to the fooble you want to modify',
                     ),
+                ]),
+                commands: new CommandDefinitions([
                     new CommandDefinition(
                         name: 'operate',
                         help: 'Sub command for operations',
@@ -35,7 +39,7 @@ final class AsciiPrinterTest extends TestCase
                             ),
                         ])
                     ),
-                ],
+                ]),
                 options: new OptionDefinitions([
                     new OptionDefinition(
                         name: 'change-directory',

@@ -8,7 +8,9 @@ use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Loader;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
+use PhpTui\CliParser\Metadata\ArgumentDefinitions;
 use PhpTui\CliParser\Metadata\CommandDefinition;
+use PhpTui\CliParser\Metadata\CommandDefinitions;
 use PhpTui\CliParser\Metadata\OptionDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinitions;
 use PhpTui\CliParser\Type\IntegerType;
@@ -142,14 +144,14 @@ final class LoaderTest extends TestCase
                 }
             },
             help: 'This is the main command',
-            arguments: [
+            commands: [
                 new CommandDefinition(
                     name: 'subCommand',
                     help: 'This is a sub-command',
                     propertyName: 'subCommand',
-                    arguments: [
+                    arguments: new ArgumentDefinitions([
                         new ArgumentDefinition(name: 'url', type: new StringType()),
-                    ]
+                    ])
                 ),
             ],
             options: [
@@ -163,15 +165,23 @@ final class LoaderTest extends TestCase
     }
 
     /**
-     * @param array<int,ArgumentDefinition|CommandDefinition> $arguments
+     * @param array<int,ArgumentDefinition> $arguments
+     * @param array<int,CommandDefinition> $commands
      * @param array<int,OptionDefinition> $options
      */
-    private function assertRoot(object $target, array $arguments = [], array $options = [], ?string $help = null, ?string $propertyName = null): void
-    {
+    private function assertRoot(
+        object $target,
+        array $arguments = [],
+        array $commands = [],
+        array $options = [],
+        ?string $help = null,
+        ?string $propertyName = null
+    ): void {
         self::assertEquals(new CommandDefinition(
             name: Loader::ROOT_NAME,
             propertyName: $propertyName,
-            arguments: $arguments,
+            arguments: new ArgumentDefinitions($arguments),
+            commands: new CommandDefinitions($commands),
             options: new OptionDefinitions($options),
             help: $help,
         ), $this->load($target));

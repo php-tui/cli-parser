@@ -4,50 +4,33 @@ namespace PhpTui\CliParser\Metadata;
 
 final class CommandDefinition implements ArgumentLike
 {
-    /**
-     * @var OptionDefinitions
-     */
     private OptionDefinitions $options;
 
-    /**
-     * @param list<ArgumentDefinition|CommandDefinition> $arguments
-     */
+    private ArgumentDefinitions $arguments;
+
+    private CommandDefinitions $commands;
+
     public function __construct(
         public readonly string $name,
         public readonly ?string $propertyName = null,
-        public readonly array $arguments = [],
+        ArgumentDefinitions $arguments = null,
         OptionDefinitions $options = null,
+        CommandDefinitions $commands = null,
         public readonly ?string $help = null,
     ) {
         $this->options = $options ?: new OptionDefinitions([]);
-    }
-    /**
-     * @return CommandDefinition[]
-     */
-    public function commands(): array
-    {
-        return array_filter($this->arguments, fn (ArgumentLike $a) => $a instanceof CommandDefinition);
-    }
-    /**
-     * @return ArgumentDefinition[]
-     */
-    public function arguments(): array
-    {
-        return array_filter(
-            $this->arguments,
-            fn (ArgumentLike $a) => $a instanceof ArgumentDefinition
-        );
+        $this->arguments = $arguments ?: new ArgumentDefinitions([]);
+        $this->commands = $commands ?: new CommandDefinitions([]);
     }
 
-    public function getCommand(string $name):?CommandDefinition
+    public function commands(): CommandDefinitions
     {
-        foreach ($this->commands() as $command) {
-            if ($command->name === $name) {
-                return $command;
-            }
-        }
+        return $this->commands;
+    }
 
-        return null;
+    public function arguments(): ArgumentDefinitions
+    {
+        return $this->arguments;
     }
 
     public function options(): OptionDefinitions

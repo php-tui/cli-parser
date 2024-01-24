@@ -40,7 +40,7 @@ final class Parser
      */
     public function parseCommand(object $target, CommandDefinition $commandDefinition, array $args): object
     {
-        $argumentDefinitions = $commandDefinition->arguments();
+        $argumentDefinitions = $commandDefinition->arguments()->toArray();
         $commandDefinitions = $commandDefinition->commands();
 
         $longOptions = [];
@@ -176,7 +176,7 @@ final class Parser
             return $target;
         }
 
-        $subCommandDefinition = $commandDefinition->getCommand($arg);
+        $subCommandDefinition = $commandDefinition->commands()->getCommand($arg);
         if (null !== $subCommandDefinition) {
             $this->parseCommand(
                 $target->{$subCommandDefinition->propertyName},

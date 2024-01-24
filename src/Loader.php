@@ -7,7 +7,9 @@ use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
+use PhpTui\CliParser\Metadata\ArgumentDefinitions;
 use PhpTui\CliParser\Metadata\CommandDefinition;
+use PhpTui\CliParser\Metadata\CommandDefinitions;
 use PhpTui\CliParser\Metadata\OptionDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinitions;
 use PhpTui\CliParser\Type\ListType;
@@ -33,6 +35,7 @@ final class Loader
         $reflection = new ReflectionObject($object);
 
         $args = [];
+        $cmds = [];
         $options = [];
         $name = $parent?->getName();
         $help = null;
@@ -54,14 +57,15 @@ final class Loader
             }
             $subCmd = $property->getValue($object);
             if (is_object($subCmd)) {
-                $args[] = $this->loadCommand($subCmd, $property);
+                $cmds[] = $this->loadCommand($subCmd, $property);
             }
         }
 
         return new CommandDefinition(
             name: $name ?? self::ROOT_NAME,
             propertyName: $parent?->getName(),
-            arguments: $args,
+            arguments: new ArgumentDefinitions($args),
+            commands: new CommandDefinitions($cmds),
             options: new OptionDefinitions($options),
             help: $help,
         );
