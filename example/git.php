@@ -11,7 +11,7 @@ use PhpTui\CliParser\Loader;
 use PhpTui\CliParser\Parser;
 use PhpTui\CliParser\Printer\AsciiPrinter;
 
-#[App(name: 'Git', version: 1.0, author: 'Daniel Leech')]
+#[App(name: 'Git', version: '1.0', author: 'Daniel Leech')]
 class GitCmd {
 
     public CloneCmd $clone;

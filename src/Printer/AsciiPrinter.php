@@ -3,6 +3,8 @@
 namespace PhpTui\CliParser\Printer;
 
 use PhpTui\CliParser\Metadata\AbstractCommandDefinition;
+use PhpTui\CliParser\Metadata\ApplicationDefinition;
+use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinition;
 use RuntimeException;
 
@@ -55,7 +57,18 @@ final class AsciiPrinter
     private function commandSynopsis(AbstractCommandDefinition $command, int $level): string
     {
         $out = [];
-        $out[] = $command->name;
+        $title = [];
+        $title[] = $command->name;
+        if ($command instanceof ApplicationDefinition) {
+            if ($command->version !== null) {
+                $title[] = $command->version;
+            }
+            if ($command->author !== null) {
+                $title[] = 'by';
+                $title[] = $command->author;
+            }
+        }
+        $out[] = implode(' ', $title);
         foreach ($command->arguments() as $argument) {
             $out[] = sprintf('<%s>', $argument->name);
         }
