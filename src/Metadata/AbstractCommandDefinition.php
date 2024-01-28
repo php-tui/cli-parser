@@ -12,7 +12,6 @@ abstract class AbstractCommandDefinition
 
     public function __construct(
         public readonly string $name,
-        public readonly ?string $propertyName = null,
         ArgumentDefinitions $arguments = null,
         OptionDefinitions $options = null,
         CommandDefinitions $commands = null,

@@ -3,6 +3,7 @@
 namespace PhpTui\CliParser\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use PhpTui\CliParser\Attribute\App;
 use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
@@ -82,6 +83,18 @@ final class LoaderTest extends TestCase
                     parseName: 'foo-bar',
                     type: new StringType(),
                 ),
+            ]
+        );
+    }
+
+    public function testApplicationVersionAndAuthor(): void
+    {
+        $this->assertRoot(
+            new #[App(author: 'Daniel Leech', version: '1.0')] class {
+            },
+            author: 'Daniel Leech',
+            version: '1.0',
+            options: [
             ]
         );
     }
@@ -177,11 +190,14 @@ final class LoaderTest extends TestCase
         array $commands = [],
         array $options = [],
         ?string $help = null,
-        ?string $propertyName = null
+        ?string $propertyName = null,
+        ?string $author = null,
+        ?string $version = null,
     ): void {
         self::assertEquals(new ApplicationDefinition(
             name: Loader::ROOT_NAME,
-            propertyName: $propertyName,
+            author: $author,
+            version:$version,
             arguments: new ArgumentDefinitions($arguments),
             commands: new CommandDefinitions($commands),
             options: new OptionDefinitions($options),

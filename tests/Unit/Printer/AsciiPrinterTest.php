@@ -3,6 +3,7 @@
 namespace PhpTui\CliParser\Tests\Unit\Printer;
 
 use PHPUnit\Framework\TestCase;
+use PhpTui\CliParser\Metadata\ApplicationDefinition;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\ArgumentDefinitions;
 use PhpTui\CliParser\Metadata\CommandDefinition;
@@ -18,7 +19,7 @@ final class AsciiPrinterTest extends TestCase
     public function testPrinter(): void
     {
         $printed = (new AsciiPrinter())->print(
-            new CommandDefinition(
+            new ApplicationDefinition(
                 name: 'root',
                 arguments: new ArgumentDefinitions([
                     new ArgumentDefinition(
@@ -30,6 +31,7 @@ final class AsciiPrinterTest extends TestCase
                 commands: new CommandDefinitions([
                     new CommandDefinition(
                         name: 'operate',
+                        propertyName: 'operate',
                         help: 'Sub command for operations',
                         options: new OptionDefinitions([
                             new OptionDefinition(

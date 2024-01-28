@@ -2,7 +2,7 @@
 
 namespace PhpTui\CliParser\Printer;
 
-use PhpTui\CliParser\Metadata\CommandDefinition;
+use PhpTui\CliParser\Metadata\AbstractCommandDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinition;
 use RuntimeException;
 
@@ -10,7 +10,7 @@ final class AsciiPrinter
 {
     public function print(object $object): string
     {
-        if ($object instanceof CommandDefinition) {
+        if ($object instanceof AbstractCommandDefinition) {
             return $this->printCommad($object);
         }
 
@@ -20,7 +20,7 @@ final class AsciiPrinter
         ));
     }
 
-    private function printCommad(CommandDefinition $object, int $level = 0): string
+    private function printCommad(AbstractCommandDefinition $object, int $level = 0): string
     {
         $out = [];
 
@@ -52,7 +52,7 @@ final class AsciiPrinter
         return implode("\n", $out);
     }
 
-    private function commandSynopsis(CommandDefinition $command, int $level): string
+    private function commandSynopsis(AbstractCommandDefinition $command, int $level): string
     {
         $out = [];
         $out[] = $command->name;

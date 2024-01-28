@@ -2,6 +2,7 @@
 
 namespace PhpTui\CliParser;
 
+use PhpTui\CliParser\Attribute\App;
 use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
@@ -28,10 +29,16 @@ final class Loader
     public function load(object $object): ApplicationDefinition
     {
         $cmd = $this->loadCommand($object, null);
+        if (!$cmd instanceof ApplicationDefinition) {
+            throw new RuntimeException('Did not parse an application definition');
+        }
         $this->validate($cmd);
         return $cmd;
     }
 
+    /**
+     * @return ($parent is null ? ApplicationDefinition : CommandDefinition)
+     */
     private function loadCommand(object $object, ?ReflectionProperty $parent): AbstractCommandDefinition
     {
         $reflection = new ReflectionObject($object);
@@ -41,11 +48,20 @@ final class Loader
         $options = [];
         $name = $parent?->getName();
         $help = null;
+        $author = null;
+        $version = null;
 
         foreach ($reflection->getAttributes(Cmd::class) as $attribute) {
             $cmd = $attribute->newInstance();
             $name = $cmd->name ?? $name;
             $help = $cmd->help;
+        }
+        foreach ($reflection->getAttributes(App::class) as $attribute) {
+            $app = $attribute->newInstance();
+            $name = $app->name;
+            $help = $app->help;
+            $author = $app->author;
+            $version = $app->version;
         }
 
         foreach ($reflection->getProperties() as $property) {
@@ -76,11 +92,12 @@ final class Loader
 
         return new ApplicationDefinition(
             name: $name ?? self::ROOT_NAME,
-            propertyName: null,
             arguments: new ArgumentDefinitions($args),
             commands: new CommandDefinitions($cmds),
             options: new OptionDefinitions($options),
             help: $help,
+            version: $version,
+            author: $author,
         );
     }
 
@@ -150,7 +167,7 @@ final class Loader
         return $name;
     }
 
-    private function validate(ApplicationDefinition $cmd): void
+    private function validate(AbstractCommandDefinition $cmd): void
     {
         $firstOptional = null;
         foreach ($cmd->arguments() as $argument) {
