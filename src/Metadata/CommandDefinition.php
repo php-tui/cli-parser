@@ -2,7 +2,7 @@
 
 namespace PhpTui\CliParser\Metadata;
 
-final class CommandDefinition implements ArgumentLike
+final class CommandDefinition
 {
     private OptionDefinitions $options;
 

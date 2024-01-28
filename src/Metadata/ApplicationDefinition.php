@@ -2,6 +2,6 @@
 
 namespace PhpTui\CliParser\Metadata;
 
-interface ArgumentLike
+class ApplicationDefinition
 {
 }
