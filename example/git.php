@@ -2,6 +2,7 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use PhpTui\CliParser\Attribute\App;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Attribute\Arg;
@@ -10,7 +11,7 @@ use PhpTui\CliParser\Loader;
 use PhpTui\CliParser\Parser;
 use PhpTui\CliParser\Printer\AsciiPrinter;
 
-#[Cmd(name: 'Git')]
+#[App(name: 'Git', version: 1.0, author: 'Daniel Leech')]
 class GitCmd {
 
     public CloneCmd $clone;

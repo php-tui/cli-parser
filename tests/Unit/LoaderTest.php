@@ -7,6 +7,7 @@ use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Loader;
+use PhpTui\CliParser\Metadata\ApplicationDefinition;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\ArgumentDefinitions;
 use PhpTui\CliParser\Metadata\CommandDefinition;
@@ -15,6 +16,7 @@ use PhpTui\CliParser\Metadata\OptionDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinitions;
 use PhpTui\CliParser\Type\IntegerType;
 use PhpTui\CliParser\Type\StringType;
+use Symfony\Component\Console\Application;
 
 final class LoaderTest extends TestCase
 {
@@ -177,7 +179,7 @@ final class LoaderTest extends TestCase
         ?string $help = null,
         ?string $propertyName = null
     ): void {
-        self::assertEquals(new CommandDefinition(
+        self::assertEquals(new ApplicationDefinition(
             name: Loader::ROOT_NAME,
             propertyName: $propertyName,
             arguments: new ArgumentDefinitions($arguments),
@@ -187,7 +189,7 @@ final class LoaderTest extends TestCase
         ), $this->load($target));
     }
 
-    private function load(object $object): CommandDefinition
+    private function load(object $object): ApplicationDefinition
     {
         return (new Loader())->load($object);
     }

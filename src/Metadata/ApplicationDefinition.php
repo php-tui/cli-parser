@@ -2,6 +2,6 @@
 
 namespace PhpTui\CliParser\Metadata;
 
-class ApplicationDefinition
+class ApplicationDefinition extends AbstractCommandDefinition
 {
 }

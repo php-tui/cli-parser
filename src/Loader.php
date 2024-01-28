@@ -6,6 +6,8 @@ use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Error\ParseError;
+use PhpTui\CliParser\Metadata\AbstractCommandDefinition;
+use PhpTui\CliParser\Metadata\ApplicationDefinition;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\ArgumentDefinitions;
 use PhpTui\CliParser\Metadata\CommandDefinition;
@@ -23,14 +25,14 @@ final class Loader
 {
     const ROOT_NAME = '__ROOT__';
 
-    public function load(object $object): CommandDefinition
+    public function load(object $object): ApplicationDefinition
     {
         $cmd = $this->loadCommand($object, null);
         $this->validate($cmd);
         return $cmd;
     }
 
-    private function loadCommand(object $object, ?ReflectionProperty $parent): CommandDefinition
+    private function loadCommand(object $object, ?ReflectionProperty $parent): AbstractCommandDefinition
     {
         $reflection = new ReflectionObject($object);
 
@@ -61,9 +63,20 @@ final class Loader
             }
         }
 
-        return new CommandDefinition(
+        if ($parent) {
+            return new CommandDefinition(
+                name: $name ?? self::ROOT_NAME,
+                propertyName: $parent->getName(),
+                arguments: new ArgumentDefinitions($args),
+                commands: new CommandDefinitions($cmds),
+                options: new OptionDefinitions($options),
+                help: $help,
+            );
+        }
+
+        return new ApplicationDefinition(
             name: $name ?? self::ROOT_NAME,
-            propertyName: $parent?->getName(),
+            propertyName: null,
             arguments: new ArgumentDefinitions($args),
             commands: new CommandDefinitions($cmds),
             options: new OptionDefinitions($options),
@@ -137,7 +150,7 @@ final class Loader
         return $name;
     }
 
-    private function validate(CommandDefinition $cmd): void
+    private function validate(ApplicationDefinition $cmd): void
     {
         $firstOptional = null;
         foreach ($cmd->arguments() as $argument) {
