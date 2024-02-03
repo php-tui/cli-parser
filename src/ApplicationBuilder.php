@@ -4,11 +4,18 @@ namespace PhpTui\CliParser;
 
 use PhpTui\CliParser\Application\Application;
 use PhpTui\CliParser\Application\CommandHandler;
+use PhpTui\CliParser\Application\Context;
+use PhpTui\CliParser\Metadata\Loader;
+use PhpTui\CliParser\Parser\Parser;
 
+/**
+ * @template-covariant TApplication of object
+ * @template-covariant TCommand of object
+ */
 final class ApplicationBuilder
 {
     /**
-     * @var array<string,callable(object):int>
+     * @var array<class-string,callable(Context<TApplication,TCommand>):int>
      */
     private array $handlers = [];
 
@@ -16,12 +23,17 @@ final class ApplicationBuilder
     {
     }
 
+    /**
+     * @return self<object,object>
+     */
     public static function fromSpecification(object $cli): self
     {
         return new self($cli);
     }
     /**
-     * @param callable(object):int $handler
+     * @param class-string $cmdFqn
+     * @param callable(Context<TApplication,TCommand>):int $handler
+     * @return self<object,object>
      */
     public function addHandler(string $cmdFqn, callable $handler): self
     {

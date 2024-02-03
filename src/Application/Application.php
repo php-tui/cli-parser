@@ -2,9 +2,8 @@
 
 namespace PhpTui\CliParser\Application;
 
-use PhpTui\CliParser\Loader;
-use PhpTui\CliParser\Parser;
-use RuntimeException;
+use PhpTui\CliParser\Metadata\Loader;
+use PhpTui\CliParser\Parser\Parser;
 
 final class Application
 {
@@ -12,6 +11,7 @@ final class Application
         private object $cli,
         private Loader $loader,
         private Parser $parser,
+        /** @var CommandHandler<object,object> */
         private CommandHandler $handler,
     ) {
     }
@@ -24,6 +24,6 @@ final class Application
         $definition = $this->loader->load($this->cli);
         array_shift($argv);
         $command = $this->parser->parse($definition, $this->cli, $argv);
-        return $this->handler->handle($command);
+        return $this->handler->handle(new Context($definition, $this->cli, $command));
     }
 }

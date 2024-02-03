@@ -2,7 +2,7 @@
 
 namespace PhpTui\CliParser\Metadata;
 
-class ApplicationDefinition extends AbstractCommandDefinition
+final class ApplicationDefinition extends AbstractCommandDefinition
 {
     public function __construct(
         string $name,

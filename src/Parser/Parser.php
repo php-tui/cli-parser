@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpTui\CliParser;
+namespace PhpTui\CliParser\Parser;
 
 use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Metadata\AbstractCommandDefinition;

@@ -4,22 +4,27 @@ namespace PhpTui\CliParser\Application;
 
 use PhpTui\CliParser\Application\Exception\CommandHandlerNotFound;
 
+/**
+ * @template TApplication of object
+ * @template TCommand of object
+ */
 final class CommandHandler
 {
     /**
-     * @param array<string,callable(object):int> $handlers
+     * @param array<class-string,callable(Context<TApplication,TCommand>):int> $handlers
      */
     public function __construct(private array $handlers)
     {
     }
-
-    public function handle(object $command): int
+    /**
+     * @param Context<TApplication,TCommand> $context
+     */
+    public function handle(Context $context): int
     {
-        if (!isset($this->handlers[$command::class])) {
-            throw new CommandHandlerNotFound($command::class);
+        if (!isset($this->handlers[$context->command()::class])) {
+            throw new CommandHandlerNotFound($context->command()::class);
         }
 
-        return ($this->handlers[$command::class])($command);
-
+        return ($this->handlers[$context->command()::class])($context);
     }
 }

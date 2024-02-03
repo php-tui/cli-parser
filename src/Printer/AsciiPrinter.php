@@ -4,7 +4,6 @@ namespace PhpTui\CliParser\Printer;
 
 use PhpTui\CliParser\Metadata\AbstractCommandDefinition;
 use PhpTui\CliParser\Metadata\ApplicationDefinition;
-use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinition;
 use RuntimeException;
 

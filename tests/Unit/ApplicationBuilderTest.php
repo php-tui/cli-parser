@@ -4,21 +4,20 @@ namespace PhpTui\CliParser\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use PhpTui\CliParser\ApplicationBuilder;
-use PhpTui\CliParser\Attribute\App;
-use PhpTui\CliParser\Attribute\Cmd;
+use PhpTui\CliParser\Application\Context;
 
 final class ApplicationBuilderTest extends TestCase
 {
     public function testBuildAndRun(): void
     {
-        $helloCmd = new #[Cmd()] class() {};
-        $spec = new #[App] class() {
+        $helloCmd = new class() {};
+        $spec = new class() {
             public object $hello;
         };
         $spec->hello = $helloCmd;
 
         $exitCode = ApplicationBuilder::fromSpecification($spec)
-            ->addHandler($helloCmd::class, function (object $cmd):int {
+            ->addHandler($helloCmd::class, function (Context $context):int {
                 return 1;
             })
             ->build()->run(['', 'hello']);

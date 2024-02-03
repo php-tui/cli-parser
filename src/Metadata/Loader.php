@@ -1,20 +1,12 @@
 <?php
 
-namespace PhpTui\CliParser;
+namespace PhpTui\CliParser\Metadata;
 
 use PhpTui\CliParser\Attribute\App;
 use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Error\ParseError;
-use PhpTui\CliParser\Metadata\AbstractCommandDefinition;
-use PhpTui\CliParser\Metadata\ApplicationDefinition;
-use PhpTui\CliParser\Metadata\ArgumentDefinition;
-use PhpTui\CliParser\Metadata\ArgumentDefinitions;
-use PhpTui\CliParser\Metadata\CommandDefinition;
-use PhpTui\CliParser\Metadata\CommandDefinitions;
-use PhpTui\CliParser\Metadata\OptionDefinition;
-use PhpTui\CliParser\Metadata\OptionDefinitions;
 use PhpTui\CliParser\Type\ListType;
 use PhpTui\CliParser\Type\TypeFactory;
 use ReflectionAttribute;

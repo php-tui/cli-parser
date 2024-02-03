@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpTui\CliParser\Tests\Unit;
+namespace PhpTui\CliParser\Tests\Unit\Parser;
 
 use Closure;
 use Generator;
@@ -10,8 +10,8 @@ use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Error\ParseError;
-use PhpTui\CliParser\Loader;
-use PhpTui\CliParser\Parser;
+use PhpTui\CliParser\Metadata\Loader;
+use PhpTui\CliParser\Parser\Parser;
 
 final class ParserTest extends TestCase
 {

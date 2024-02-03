@@ -1,13 +1,13 @@
 <?php
 
-namespace PhpTui\CliParser\Tests\Unit;
+namespace PhpTui\CliParser\Tests\Unit\Metadata;
 
 use PHPUnit\Framework\TestCase;
 use PhpTui\CliParser\Attribute\App;
 use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
-use PhpTui\CliParser\Loader;
+use PhpTui\CliParser\Metadata\Loader;
 use PhpTui\CliParser\Metadata\ApplicationDefinition;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
 use PhpTui\CliParser\Metadata\ArgumentDefinitions;
@@ -17,7 +17,6 @@ use PhpTui\CliParser\Metadata\OptionDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinitions;
 use PhpTui\CliParser\Type\IntegerType;
 use PhpTui\CliParser\Type\StringType;
-use Symfony\Component\Console\Application;
 
 final class LoaderTest extends TestCase
 {
