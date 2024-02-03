@@ -2,18 +2,15 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use PhpTui\CliParser\ApplicationBuilder;
 use PhpTui\CliParser\Attribute\App;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Attribute\Arg;
-use PhpTui\CliParser\Error\ParseError;
-use PhpTui\CliParser\Loader;
-use PhpTui\CliParser\Parser;
-use PhpTui\CliParser\Printer\AsciiPrinter;
 
 #[App(name: 'Git', version: '1.0', author: 'Daniel Leech')]
-class GitCmd {
-
+final class GitCmd
+{
     public CloneCmd $clone;
 
     public InitCmd $init;
@@ -29,7 +26,8 @@ class GitCmd {
 }
 
 #[Cmd(help: 'Clone a repository into a new directory')]
-class CloneCmd {
+final class CloneCmd
+{
     #[Arg(help: 'Repository to clone', required: true)]
     public string $repo;
 
@@ -38,7 +36,8 @@ class CloneCmd {
 }
 
 #[Cmd(help: 'Create an empty git repository')]
-class InitCmd {
+final class InitCmd
+{
     #[Arg(help: 'Repository to clone')]
     public string $repo;
 
@@ -50,40 +49,21 @@ $cli = new GitCmd();
 $cli->init = new InitCmd();
 $cli->clone = new CloneCmd();
 
-$definition = (new Loader())->load($cli);
-
-array_shift($argv);
-
-try {
-    $cmd = (new Parser())->parse($definition, $cli, $argv);
-} catch (ParseError $e) {
-    println($e->getMessage());
-    exit(1);
-}
-
-if ($cli->help) {
-    println((new AsciiPrinter())->print($definition));
-    exit(0);
-}
-
-if ($cli->version) {
-    println('1.0.0-pre');
-    exit(0);
-}
-if ($cmd instanceof GitCmd) {
-    println((new AsciiPrinter())->print($definition));
-}
-if ($cmd instanceof CloneCmd) {
-    println(sprintf('Git cloning %s...', $cmd->repo));
-    if ($cmd->recurseSubModules) {
-        println(sprintf('... and recursing submodules', $cmd->repo));
-    }
-}
-if ($cmd instanceof InitCmd) {
-    dump($cmd);
-}
+$application = ApplicationBuilder::fromSpecification($cli)
+    ->addHandler(InitCmd::class, function (InitCmd $cmd) {
+        dump($cmd);
+    })
+    ->addHandler(CloneCmd::class, function (CloneCmd $cmd) {
+        println(sprintf('Git cloning %s...', $cmd->repo));
+        if ($cmd->recurseSubModules) {
+            println('... and recursing submodules');
+        }
+    })
+    ->build();
+;
+$application->run($argv);
 
 function println(string $message): void
 {
-echo $message ."\n";
+    echo $message ."\n";
 }
