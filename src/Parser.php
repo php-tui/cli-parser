@@ -4,8 +4,8 @@ namespace PhpTui\CliParser;
 
 use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Metadata\AbstractCommandDefinition;
+use PhpTui\CliParser\Metadata\ApplicationDefinition;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
-use PhpTui\CliParser\Metadata\CommandDefinition;
 use PhpTui\CliParser\Type\ListType;
 use RuntimeException;
 
@@ -17,23 +17,15 @@ final class Parser
     private const T_OPT_SHORT = 'T_OPT_SHORT';
     private const T_OPT_SHORT_FLAG = 'T_OPT_SHORT_FLAG';
 
-    private Loader $loader;
-
-    public function __construct(Loader $loader = null)
-    {
-        $this->loader = $loader ?: new Loader();
-    }
-
     /**
      * Parse the CLI arguments into the given CLI object and return the
      * resolved command object.
      *
      * @param string[] $args
      */
-    public function parse(object $target, array $args): object
+    public function parse(ApplicationDefinition $definition, object $target, array $args): object
     {
-        $commandDefinition = $this->loader->load($target);
-        return $this->parseCommand($target, $commandDefinition, $args);
+        return $this->parseCommand($target, $definition, $args);
     }
 
     /**

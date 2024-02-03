@@ -55,7 +55,7 @@ $definition = (new Loader())->load($cli);
 array_shift($argv);
 
 try {
-    $cmd = (new Parser())->parse($cli, $argv);
+    $cmd = (new Parser())->parse($definition, $cli, $argv);
 } catch (ParseError $e) {
     println($e->getMessage());
     exit(1);
@@ -65,6 +65,7 @@ if ($cli->help) {
     println((new AsciiPrinter())->print($definition));
     exit(0);
 }
+
 if ($cli->version) {
     println('1.0.0-pre');
     exit(0);

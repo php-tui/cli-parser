@@ -10,6 +10,7 @@ use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Error\ParseError;
+use PhpTui\CliParser\Loader;
 use PhpTui\CliParser\Parser;
 
 final class ParserTest extends TestCase
@@ -540,6 +541,7 @@ final class ParserTest extends TestCase
      */
     private static function parse(object $target, array $args): object
     {
-        return (new Parser())->parse($target, $args);
+        $definition = (new Loader())->load($target);
+        return (new Parser())->parse($definition, $target, $args);
     }
 }
