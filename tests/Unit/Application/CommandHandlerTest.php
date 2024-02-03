@@ -33,9 +33,7 @@ final class CommandHandlerTest extends TestCase
 
         $cmd = new class() {};
         $app = new ApplicationDefinition('foo');
-
-        $handler = new CommandHandler([
-        ]);
+        $handler = new CommandHandler([]);
 
         self::assertEquals(127, $handler->handle(new Context($app, $cmd, $cmd)));
     }

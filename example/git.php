@@ -50,14 +50,20 @@ $cli->init = new InitCmd();
 $cli->clone = new CloneCmd();
 
 $application = ApplicationBuilder::fromSpecification($cli)
+    ->addHandler(GitCmd::class, function (GitCmd $cmd) {
+        dump($cmd);
+        return 0;
+    })
     ->addHandler(InitCmd::class, function (InitCmd $cmd) {
         dump($cmd);
+        return 0;
     })
     ->addHandler(CloneCmd::class, function (CloneCmd $cmd) {
         println(sprintf('Git cloning %s...', $cmd->repo));
         if ($cmd->recurseSubModules) {
             println('... and recursing submodules');
         }
+        return 0;
     })
     ->build();
 ;
