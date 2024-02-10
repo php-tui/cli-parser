@@ -9,7 +9,7 @@ use PhpTui\CliParser\Metadata\Loader;
 use PhpTui\CliParser\Parser\Parser;
 
 /**
- * @template-covariant TApplication of object
+ * @template TApplication of object
  * @template-covariant TCommand of object
  */
 final class ApplicationBuilder
@@ -19,12 +19,18 @@ final class ApplicationBuilder
      */
     private array $handlers = [];
 
-    public function __construct(private object $cli)
-    {
+    /**
+     * @param TApplication $cli
+     */
+    public function __construct(
+        private object $cli
+    ) {
     }
 
     /**
-     * @return self<object,object>
+     * @template TCli of object
+     * @param TCli $cli
+     * @return self<TCli,object>
      */
     public static function fromSpecification(object $cli): self
     {
@@ -33,7 +39,7 @@ final class ApplicationBuilder
     /**
      * @param class-string $cmdFqn
      * @param callable(Context<TApplication,TCommand>):int $handler
-     * @return self<object,object>
+     * @return self<TApplication,object>
      */
     public function addHandler(string $cmdFqn, callable $handler): self
     {
