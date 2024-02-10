@@ -4,6 +4,6 @@ namespace PhpTui\CliParser\Application\Exception;
 
 use RuntimeException;
 
-class MiddlewareExhausted extends RuntimeException
+final class MiddlewareExhausted extends RuntimeException
 {
 }

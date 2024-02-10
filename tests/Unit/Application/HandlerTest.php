@@ -9,7 +9,7 @@ use PhpTui\CliParser\Application\Handler;
 use PhpTui\CliParser\Application\Middleware;
 use PhpTui\CliParser\Application\Middleware\ClosureMiddleware;
 use PhpTui\CliParser\Metadata\ApplicationDefinition;
-use RuntimeException;
+use stdClass;
 
 final class HandlerTest extends TestCase
 {
@@ -21,9 +21,11 @@ final class HandlerTest extends TestCase
 
     public function testMiddlewareReturnsResponse(): void
     {
-        $exitCode = $this->createHandler(new ClosureMiddleware(function (Handler $handler, Context $context) {
-            return 1;
-        }))->handle($this->createContext());
+        $exitCode = $this->createHandler(
+            new ClosureMiddleware(function (Handler $handler, Context $context) {
+                return 1;
+            })
+        )->handle($this->createContext());
 
         self::assertEquals(1, $exitCode);
     }
@@ -49,10 +51,11 @@ final class HandlerTest extends TestCase
     {
         return (new Handler(...$middlewares));
     }
-
+    /**
+     * @return Context<object,object>
+     */
     private function createContext(): Context
     {
-        return new Context(new ApplicationDefinition('foo'), new \stdClass(), new \stdClass());
+        return new Context(new ApplicationDefinition('foo'), new stdClass(), new stdClass());
     }
 }
-

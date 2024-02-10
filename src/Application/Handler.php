@@ -9,14 +9,14 @@ final class Handler
     /**
      * @var list<Middleware>
      */
-    private $middlewares;
+    private array $middlewares;
 
     public function __construct(Middleware ...$middlewares)
     {
         $this->middlewares = array_values($middlewares);
     }
     /**
-     * @param Context<object,object> $request
+     * @param Context<object,object> $context
      */
     public function handle(Context $context): int
     {
