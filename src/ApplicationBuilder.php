@@ -15,7 +15,7 @@ use PhpTui\CliParser\Parser\Parser;
 final class ApplicationBuilder
 {
     /**
-     * @var array<class-string,callable(Context<TApplication,TCommand>):int>
+     * @var array<class-string<TCommand>,callable(Context<TApplication,TCommand>):int>
      */
     private array $handlers = [];
 
@@ -37,12 +37,14 @@ final class ApplicationBuilder
         return new self($cli);
     }
     /**
-     * @param class-string $cmdFqn
-     * @param callable(Context<TApplication,TCommand>):int $handler
+     * @template TCmd of object
+     * @param class-string<TCmd> $cmdFqn
+     * @param callable(Context<TApplication,TCmd>):int $handler
      * @return self<TApplication,object>
      */
     public function addHandler(string $cmdFqn, callable $handler): self
     {
+        /** @phpstan-ignore-next-line */
         $this->handlers[$cmdFqn] = $handler;
         return $this;
     }
