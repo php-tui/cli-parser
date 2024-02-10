@@ -14,7 +14,7 @@ final class AsciiPrinter
     public function print(object $object): string
     {
         if ($object instanceof AbstractCommandDefinition) {
-            return $this->printCommad($object);
+            return $this->printCommand($object);
         }
         if ($object instanceof ExceptionContext) {
             return $this->printException($object);
@@ -26,7 +26,7 @@ final class AsciiPrinter
         ));
     }
 
-    private function printCommad(AbstractCommandDefinition $object, int $level = 0): string
+    private function printCommand(AbstractCommandDefinition $object, int $level = 0): string
     {
         $out = [];
 
