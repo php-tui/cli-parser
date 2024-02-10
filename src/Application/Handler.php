@@ -18,7 +18,7 @@ final class Handler
     /**
      * @param Context<object,object> $request
      */
-    public function handle(Context $request): int
+    public function handle(Context $context): int
     {
         $middleware = array_shift($this->middlewares);
 
@@ -28,6 +28,6 @@ final class Handler
             );
         }
 
-        return $middleware->handle($this, $request);
+        return $middleware->handle($this, $context);
     }
 }
