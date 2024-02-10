@@ -72,6 +72,7 @@ $application = ApplicationBuilder::fromSpecification($cli)
         return 0;
     })
     ->build();
+
 exit($application->run($argv));
 
 function println(string $message): void

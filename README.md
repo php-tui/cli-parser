@@ -1,63 +1,98 @@
-CLI Parser
-==========
+CLI Parser and Handler
+======================
 
-Type safe CLI parser for PHP inspired by [Kong](https://github.com/alecthomas/kong).
+Type safe CLI parser and command handler for PHP inspired by [Kong](https://github.com/alecthomas/kong).
 
-Usage
------
+Features
+--------
 
-Taking the example directly from Kong:
+- Casts arguments and options into objects.
+- Command bus and middleware architecture.
+- Parsing
+  - Command nesting
+  - Type support for `string`, `int`, `float`, `boolean` and `lists`.
+  - Repeated arguments
+  - Optional arguments
+  - Long and short options
+  - Boolean options (flags)
+  - List options
 
-```
-shell rm [-f] [-r] <paths> ...
-shell ls [<paths> ...]
-```
-
-Can be represented as:
+Usage Example
+-------------
 
 ```php
 <?php
 
-$cli = new #[Cmd('My App', help: 'Application to list and remove files')] class(
-    new #[Cmd('rm', help: 'Remove files')] class {
-        #[Opt(help: 'Force removal')]
-        public bool $force = false;
+use PhpTui\CliParser\ApplicationBuilder;
+use PhpTui\CliParser\Application\Context;
+use PhpTui\CliParser\Application\Middleware\ExceptionHandlingMiddleware;
+use PhpTui\CliParser\Application\Middleware\HelpMiddleware;
+use PhpTui\CliParser\Attribute\App;
+use PhpTui\CliParser\Attribute\Cmd;
+use PhpTui\CliParser\Attribute\Opt;
+use PhpTui\CliParser\Attribute\Arg;
+use PhpTui\CliParser\Printer\AsciiPrinter;
 
-        #[Opt(help: 'Recursively remove files', short: 'r')]
-        public bool $recursive = false;
+#[App(name: 'Git', version: '1.0', author: 'Daniel Leech')]
+final class GitCmd
+{
+    public CloneCmd $clone;
 
-        /** @var list<string> */
-        #[Opt(help: 'Paths to remove', name: 'path', type: 'path')]
-        public array $paths = [];
-    },
-    new #[Cmd('ls', help: 'List files')] class {
-        /** @var list<string> */
-        #[Opt(help: 'Paths to list', name: 'path', type: 'path')]
-        public array $paths = [];
-    },
-) {
-    public function __construct(
-        public object $rmCmd,
-        public object $lsCmd,
-    ) {}
-};
+    public InitCmd $init;
+
+    #[Opt(short: 'v', long: 'version', help: 'Create an empty git repository')]
+    public bool $version = false;
+
+    #[Opt(help: 'Show help')]
+    public bool $help = false;
+
+    #[Opt(short: 'C', help: 'Run git as ig it were executed in this path')]
+    public string $cwd;
+}
+
+#[Cmd(help: 'Clone a repository into a new directory')]
+final class CloneCmd
+{
+    #[Arg(help: 'Repository to clone', required: true)]
+    public string $repo;
+
+    #[Opt(name: 'recurse-submodules', short: 'R', help: 'Initialize submodules in the clone')]
+    public bool $recurseSubModules = false;
+}
+
+#[Cmd(help: 'Create an empty git repository')]
+final class InitCmd
+{
+    #[Arg(help: 'Repository to clone')]
+    public string $repo;
+
+    #[Opt(name: 'recurse-submodules', help: 'Initialize submodules in the clone')]
+    public bool $recurseSubModules;
+}
+
+$cli = new GitCmd();
+$cli->init = new InitCmd();
+$cli->clone = new CloneCmd();
+
+$application = ApplicationBuilder::fromSpecification($cli)
+    ->prependMiddleware(new HelpMiddleware(new AsciiPrinter()))
+    ->addHandler(InitCmd::class, function (Context $ctx) {
+        echo 'Initializing' . "\n";
+        return 0;
+    })
+    ->addHandler(CloneCmd::class, function (Context $ctx) {
+        echo sprintf('Git cloning %s...', $ctx->command()->repo) . "\n";
+        if ($ctx->command()->recurseSubModules) {
+            echo '... and recursing submodules' . "\n";
+        }
+        return 0;
+    })
+    ->build();
+
+exit($application->run($argv));
 ```
 
-We can then parse any CLI arguments with:
+Contribution
+------------
 
-```
-(new Parser())->parse($cli, $argv);
-```
-
-Parsing
--------
-
-- [x] `<arg1>` single argument
-- [x] `<arg1> <arg2>` multiple arguments
-- [x] `<arg1> ...` repeat arguments
-- [x] `--option` Option flag
-- [x] `--option=foo` Option with value
-- [x] `-o` Short option flag
-- [x] `-ofoo` Short option with value
-- [x] branching arguments
-
+Contribute!
