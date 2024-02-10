@@ -3,18 +3,18 @@
 namespace PhpTui\CliParser\Tests\Unit\Application;
 
 use PHPUnit\Framework\TestCase;
-use PhpTui\CliParser\Application\CommandHandler;
+use PhpTui\CliParser\Application\CommandMiddleware;
 use PhpTui\CliParser\Application\Context;
 use PhpTui\CliParser\Application\Exception\CommandHandlerNotFound;
 use PhpTui\CliParser\Metadata\ApplicationDefinition;
 
-final class CommandHandlerTest extends TestCase
+final class CommandMiddlewareTest extends TestCase
 {
     public function testHandleCallable(): void
     {
         $cmd = new class() {};
 
-        $handler = new CommandHandler([
+        $handler = new CommandMiddleware([
             $cmd::class => function (object $cmd) use (&$called):int {
                 $called = true;
                 return 127;
@@ -33,7 +33,7 @@ final class CommandHandlerTest extends TestCase
 
         $cmd = new class() {};
         $app = new ApplicationDefinition('foo');
-        $handler = new CommandHandler([]);
+        $handler = new CommandMiddleware([]);
 
         self::assertEquals(127, $handler->handle(new Context($app, $cmd, $cmd)));
     }

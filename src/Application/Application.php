@@ -11,8 +11,7 @@ final class Application
         private object $cli,
         private Loader $loader,
         private Parser $parser,
-        /** @var CommandHandler<object,object> */
-        private CommandHandler $handler,
+        private Handler $handler,
     ) {
     }
 

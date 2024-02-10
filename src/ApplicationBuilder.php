@@ -3,8 +3,10 @@
 namespace PhpTui\CliParser;
 
 use PhpTui\CliParser\Application\Application;
-use PhpTui\CliParser\Application\CommandHandler;
+use PhpTui\CliParser\Application\CommandMiddleware;
 use PhpTui\CliParser\Application\Context;
+use PhpTui\CliParser\Application\Handler;
+use PhpTui\CliParser\Application\Middleware;
 use PhpTui\CliParser\Metadata\Loader;
 use PhpTui\CliParser\Parser\Parser;
 
@@ -18,6 +20,11 @@ final class ApplicationBuilder
      * @var array<class-string<TCommand>,callable(Context<TApplication,TCommand>):int>
      */
     private array $handlers = [];
+
+    /**
+     * @var Middleware[]
+     */
+    private array $prependMiddlewares = [];
 
     /**
      * @param TApplication $cli
@@ -49,13 +56,28 @@ final class ApplicationBuilder
         return $this;
     }
 
+    /**
+     * @return self<TApplication,object>
+     */
+    public function prependMiddleware(Middleware ...$middlewares): self
+    {
+        $this->prependMiddlewares = array_merge(
+            $this->prependMiddlewares,
+            $middlewares
+        );
+        return $this;
+    }
+
     public function build(): Application
     {
         return new Application(
             $this->cli,
             new Loader(),
             new Parser(),
-            new CommandHandler($this->handlers)
+            new Handler(...[
+                ...$this->prependMiddlewares,
+                new CommandMiddleware($this->handlers)
+            ])
         );
     }
 }

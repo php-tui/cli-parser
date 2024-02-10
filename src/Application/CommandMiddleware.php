@@ -8,7 +8,7 @@ use PhpTui\CliParser\Application\Exception\CommandHandlerNotFound;
  * @template TApplication of object
  * @template TCommand of object
  */
-final class CommandHandler
+final class CommandMiddleware implements Middleware
 {
     /**
      * @param array<class-string,callable(Context<TApplication,TCommand>):int> $handlers
@@ -19,7 +19,7 @@ final class CommandHandler
     /**
      * @param Context<TApplication,TCommand> $context
      */
-    public function handle(Context $context): int
+    public function handle(Handler $handler, Context $context): int
     {
         if (!isset($this->handlers[$context->command()::class])) {
             throw new CommandHandlerNotFound($context->command()::class);
