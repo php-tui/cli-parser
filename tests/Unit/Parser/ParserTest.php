@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
-use PhpTui\CliParser\Error\ParseError;
+use PhpTui\CliParser\Error\ParseErrorWithContext;
 use PhpTui\CliParser\Metadata\Loader;
 use PhpTui\CliParser\Parser\Parser;
 
@@ -50,7 +50,7 @@ final class ParserTest extends TestCase
                 try {
                     self::parse($target, []);
                     self::fail('Exception not thrown');
-                } catch (ParseError $e) {
+                } catch (ParseErrorWithContext $e) {
                     self::assertStringContainsString(
                         'Missing required argument(s) <foobar> in command "__ROOT__"',
                         $e->getMessage()
@@ -136,7 +136,7 @@ final class ParserTest extends TestCase
 
                 try {
                     self::parse($target, ['foo', 'bar']);
-                } catch (ParseError $error) {
+                } catch (ParseErrorWithContext $error) {
                     self::assertStringContainsString('Required argument <barfoo> cannot be positioned after optional argument', $error->getMessage());
                     return;
                 }
@@ -542,6 +542,6 @@ final class ParserTest extends TestCase
     private static function parse(object $target, array $args): object
     {
         $definition = (new Loader())->load($target);
-        return (new Parser())->parse($definition, $target, $args);
+        return (new Parser())->parse($definition, $target, $args)[1];
     }
 }

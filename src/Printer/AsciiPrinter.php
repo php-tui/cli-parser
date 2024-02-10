@@ -2,6 +2,8 @@
 
 namespace PhpTui\CliParser\Printer;
 
+use PhpTui\CliParser\Application\ExceptionContext;
+use PhpTui\CliParser\Error\ParseErrorWithContext;
 use PhpTui\CliParser\Metadata\AbstractCommandDefinition;
 use PhpTui\CliParser\Metadata\ApplicationDefinition;
 use PhpTui\CliParser\Metadata\OptionDefinition;
@@ -13,6 +15,9 @@ final class AsciiPrinter
     {
         if ($object instanceof AbstractCommandDefinition) {
             return $this->printCommad($object);
+        }
+        if ($object instanceof ExceptionContext) {
+            return $this->printException($object);
         }
 
         throw new RuntimeException(sprintf(
@@ -101,5 +106,20 @@ final class AsciiPrinter
         $out[] = sprintf('(%s)', $option->type->toString());
 
         return $this->indent(implode(' ', $out), $level);
+    }
+
+    private function printException(ExceptionContext $object): string
+    {
+        $out = [
+            sprintf('ERROR: %s', $object->throwable->getMessage()),
+            '',
+        ];
+        if ($object->throwable instanceof ParseErrorWithContext) {
+            $out[] = $this->print($object->throwable->definition);
+        } else {
+            $out[] = $object->throwable->getTraceAsString();
+        }
+
+        return implode("\n", $out);
     }
 }

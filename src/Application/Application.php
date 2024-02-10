@@ -4,6 +4,7 @@ namespace PhpTui\CliParser\Application;
 
 use PhpTui\CliParser\Metadata\Loader;
 use PhpTui\CliParser\Parser\Parser;
+use Throwable;
 
 final class Application
 {
@@ -12,6 +13,7 @@ final class Application
         private Loader $loader,
         private Parser $parser,
         private Handler $handler,
+        private ExceptionHandler $exceptionHandler,
     ) {
     }
 
@@ -20,9 +22,27 @@ final class Application
      */
     public function run(array $argv): int
     {
-        $definition = $this->loader->load($this->cli);
+        $applicationDefinition = $this->loader->load($this->cli);
+
         array_shift($argv);
-        $command = $this->parser->parse($definition, $this->cli, $argv);
-        return $this->handler->handle(new Context($definition, $this->cli, $command));
+
+        try {
+            [$commandDefinition, $command] = $this->parser->parse(
+                $applicationDefinition,
+                $this->cli,
+                $argv
+            );
+        } catch (Throwable $exception) {
+            return $this->exceptionHandler->handle(
+                new ExceptionContext($applicationDefinition, $exception)
+            );
+        }
+
+        return $this->handler->handle(new Context(
+            $applicationDefinition,
+            $commandDefinition,
+            $this->cli,
+            $command
+        ));
     }
 }

@@ -5,7 +5,7 @@ namespace PhpTui\CliParser\Metadata;
 use ArrayIterator;
 use Countable;
 use IteratorAggregate;
-use ParseError;
+use PhpTui\CliParser\Error\ParseError;
 use Traversable;
 
 /**
@@ -46,9 +46,20 @@ final class OptionDefinitions implements IteratorAggregate, Countable
         $this->options = $options;
     }
 
-    public function get(string $name): OptionDefinition
+    public function getOrNull(string $name): ?OptionDefinition
     {
         if (isset($this->optionsByName[$name])) {
+            return $this->optionsByName[$name];
+        }
+
+        return null;
+    }
+
+    public function get(string $name): OptionDefinition
+    {
+        $option = $this->getOrNull($name);
+
+        if ($option) {
             return $this->optionsByName[$name];
         }
 

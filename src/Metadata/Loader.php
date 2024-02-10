@@ -6,7 +6,7 @@ use PhpTui\CliParser\Attribute\App;
 use PhpTui\CliParser\Attribute\Arg;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
-use PhpTui\CliParser\Error\ParseError;
+use PhpTui\CliParser\Error\ParseErrorWithContext;
 use PhpTui\CliParser\Type\ListType;
 use PhpTui\CliParser\Type\TypeFactory;
 use ReflectionAttribute;
@@ -164,11 +164,11 @@ final class Loader
         $firstOptional = null;
         foreach ($cmd->arguments() as $argument) {
             if ($firstOptional && $argument->required) {
-                throw new ParseError(sprintf(
+                throw new ParseErrorWithContext(sprintf(
                     'Required argument <%s> cannot be positioned after optional argument <%s>',
                     $argument->name,
                     $firstOptional->name,
-                ));
+                ), $cmd);
             }
             if ($argument->required === false) {
                 $firstOptional = $argument;

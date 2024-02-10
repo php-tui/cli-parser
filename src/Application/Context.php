@@ -2,6 +2,7 @@
 
 namespace PhpTui\CliParser\Application;
 
+use PhpTui\CliParser\Metadata\AbstractCommandDefinition;
 use PhpTui\CliParser\Metadata\ApplicationDefinition;
 
 /**
@@ -11,7 +12,8 @@ use PhpTui\CliParser\Metadata\ApplicationDefinition;
 final class Context
 {
     public function __construct(
-        private ApplicationDefinition $definition,
+        private ApplicationDefinition $applicationDefinition,
+        private AbstractCommandDefinition $commandDefinition,
         /** @var TApplication */
         private object $application,
         /** @var TCommand */
@@ -19,9 +21,14 @@ final class Context
     ) {
     }
 
-    public function definition(): ApplicationDefinition
+    public function applicationDefinition(): ApplicationDefinition
     {
-        return $this->definition;
+        return $this->applicationDefinition;
+    }
+
+    public function commandDefinition(): AbstractCommandDefinition
+    {
+        return $this->commandDefinition;
     }
 
     /**

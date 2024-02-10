@@ -5,10 +5,12 @@ namespace PhpTui\CliParser;
 use PhpTui\CliParser\Application\Application;
 use PhpTui\CliParser\Application\CommandMiddleware;
 use PhpTui\CliParser\Application\Context;
+use PhpTui\CliParser\Application\ExceptionHandler;
 use PhpTui\CliParser\Application\Handler;
 use PhpTui\CliParser\Application\Middleware;
 use PhpTui\CliParser\Metadata\Loader;
 use PhpTui\CliParser\Parser\Parser;
+use PhpTui\CliParser\Printer\AsciiPrinter;
 
 /**
  * @template TApplication of object
@@ -77,7 +79,8 @@ final class ApplicationBuilder
             new Handler(...[
                 ...$this->prependMiddlewares,
                 new CommandMiddleware($this->handlers)
-            ])
+            ]),
+            new ExceptionHandler(new AsciiPrinter()),
         );
     }
 }

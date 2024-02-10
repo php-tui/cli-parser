@@ -9,6 +9,7 @@ use PhpTui\CliParser\Application\Handler;
 use PhpTui\CliParser\Application\Middleware;
 use PhpTui\CliParser\Application\Middleware\ClosureMiddleware;
 use PhpTui\CliParser\Metadata\ApplicationDefinition;
+use PhpTui\CliParser\Metadata\CommandDefinition;
 use stdClass;
 
 final class HandlerTest extends TestCase
@@ -56,6 +57,11 @@ final class HandlerTest extends TestCase
      */
     private function createContext(): Context
     {
-        return new Context(new ApplicationDefinition('foo'), new stdClass(), new stdClass());
+        return new Context(
+            new ApplicationDefinition('foo'),
+            new CommandDefinition('foo', 'foo'),
+            new stdClass(),
+            new stdClass()
+        );
     }
 }

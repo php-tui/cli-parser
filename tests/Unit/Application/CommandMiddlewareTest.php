@@ -8,6 +8,7 @@ use PhpTui\CliParser\Application\Context;
 use PhpTui\CliParser\Application\Exception\CommandHandlerNotFound;
 use PhpTui\CliParser\Application\Handler;
 use PhpTui\CliParser\Metadata\ApplicationDefinition;
+use PhpTui\CliParser\Metadata\CommandDefinition;
 
 final class CommandMiddlewareTest extends TestCase
 {
@@ -21,11 +22,12 @@ final class CommandMiddlewareTest extends TestCase
                 return 127;
             }
         ]);
-        $app = new ApplicationDefinition('foo');
+        $appDef = new ApplicationDefinition('foo');
+        $cmdDef = new CommandDefinition('foo', 'foo');
 
         self::assertEquals(127, $handler->handle(
             new Handler(),
-            new Context($app, $cmd, $cmd)
+            new Context($appDef, $cmdDef, $cmd, $cmd)
         ));
     }
 
@@ -36,10 +38,11 @@ final class CommandMiddlewareTest extends TestCase
         $cmd = new class() {};
         $app = new ApplicationDefinition('foo');
         $handler = new CommandMiddleware([]);
+        $cmdDef = new CommandDefinition('foo', 'foo');
 
         self::assertEquals(127, $handler->handle(
             new Handler(),
-            new Context($app, $cmd, $cmd)
+            new Context($app, $cmdDef, $cmd, $cmd)
         ));
     }
 }

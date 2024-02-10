@@ -2,10 +2,11 @@
 
 namespace PhpTui\CliParser\Parser;
 
-use PhpTui\CliParser\Error\ParseError;
+use PhpTui\CliParser\Error\ParseErrorWithContext;
 use PhpTui\CliParser\Metadata\AbstractCommandDefinition;
 use PhpTui\CliParser\Metadata\ApplicationDefinition;
 use PhpTui\CliParser\Metadata\ArgumentDefinition;
+use PhpTui\CliParser\Error\ParseError;
 use PhpTui\CliParser\Type\ListType;
 use RuntimeException;
 
@@ -22,16 +23,32 @@ final class Parser
      * resolved command object.
      *
      * @param string[] $args
+     * @return array{AbstractCommandDefinition,object}
      */
-    public function parse(ApplicationDefinition $definition, object $target, array $args): object
+    public function parse(ApplicationDefinition $definition, object $target, array $args): array
     {
-        return $this->parseCommand($target, $definition, $args);
+        $cmd = $this->parseCommand($target, $definition, $args);
+        return $cmd;
     }
 
     /**
      * @param list<string> $args
+     * @return array{AbstractCommandDefinition,object}
      */
-    public function parseCommand(object $target, AbstractCommandDefinition $commandDefinition, array $args): object
+    public function parseCommand(object $target, AbstractCommandDefinition $commandDefinition, array $args): array
+    {
+        try {
+            return $this->doParseCommand($target, $commandDefinition, $args);
+        } catch (ParseError $notFound) {
+            throw new ParseErrorWithContext($notFound->getMessage(), $commandDefinition, $notFound);
+        }
+    }
+
+    /**
+     * @param list<string> $args
+     * @return array{AbstractCommandDefinition,object}
+     */
+    public function doParseCommand(object $target, AbstractCommandDefinition $commandDefinition, array $args): array
     {
         $argumentDefinitions = $commandDefinition->arguments()->toArray();
         $commandDefinitions = $commandDefinition->commands();
@@ -46,7 +63,7 @@ final class Parser
             $name = $parsed[2] ?? null;
 
             if ($type === self::T_ARG) {
-                $newTarget = $this->mapArgument(
+                [$newCommandDefinition, $newTarget] = $this->mapArgument(
                     $commandDefinition,
                     $target,
                     $args,
@@ -54,7 +71,7 @@ final class Parser
                     $arg
                 );
                 if ($newTarget !== $target) {
-                    return $newTarget;
+                    return [$newCommandDefinition, $newTarget];
                 }
                 continue;
             }
@@ -88,14 +105,14 @@ final class Parser
             fn (ArgumentDefinition $definition) => $definition->required,
         );
         if (count($requiredArguments)) {
-            throw new ParseError(sprintf(
+            throw new ParseErrorWithContext(sprintf(
                 'Missing required argument(s) <%s> in command "%s"',
                 implode('>, <', array_map(fn (ArgumentDefinition $a) => $a->name, $requiredArguments)),
                 $commandDefinition->name
-            ));
+            ), $commandDefinition);
         }
 
-        return $target;
+        return [$commandDefinition, $target];
     }
 
     /**
@@ -143,6 +160,7 @@ final class Parser
     /**
      * @param ArgumentDefinition[] $argumentDefinitions
      * @param list<string> $args
+     * @return array{AbstractCommandDefinition,object}
      */
     private function mapArgument(
         AbstractCommandDefinition $commandDefinition,
@@ -150,7 +168,7 @@ final class Parser
         array &$args,
         array &$argumentDefinitions,
         string $arg
-    ): object {
+    ): array {
         $argumentDefinition = array_shift($argumentDefinitions);
 
         if ($argumentDefinition instanceof ArgumentDefinition) {
@@ -161,12 +179,12 @@ final class Parser
                 );
                 $args = [];
 
-                return $target;
+                return [$commandDefinition, $target];
             }
 
             $target->{$argumentDefinition->name} = $argumentDefinition->type->parse($arg);
 
-            return $target;
+            return [$commandDefinition, $target];
         }
 
         $subCommandDefinition = $commandDefinition->commands()->getCommand($arg);
@@ -176,13 +194,13 @@ final class Parser
                 $subCommandDefinition,
                 $args
             );
-            return $target->{$subCommandDefinition->propertyName};
+            return [$subCommandDefinition, $target->{$subCommandDefinition->propertyName}];
         }
-        throw new ParseError(sprintf(
+        throw new ParseErrorWithContext(sprintf(
             'Extra argument with value "%s" provided for command <%s>',
             $arg,
             $commandDefinition->name
-        ));
+        ), $commandDefinition);
     }
 
     private function mapOption(

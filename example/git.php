@@ -3,10 +3,14 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 use PhpTui\CliParser\ApplicationBuilder;
+use PhpTui\CliParser\Application\Context;
+use PhpTui\CliParser\Application\Middleware\ExceptionHandlingMiddleware;
+use PhpTui\CliParser\Application\Middleware\HelpMiddleware;
 use PhpTui\CliParser\Attribute\App;
 use PhpTui\CliParser\Attribute\Cmd;
 use PhpTui\CliParser\Attribute\Opt;
 use PhpTui\CliParser\Attribute\Arg;
+use PhpTui\CliParser\Printer\AsciiPrinter;
 
 #[App(name: 'Git', version: '1.0', author: 'Daniel Leech')]
 final class GitCmd
@@ -50,24 +54,25 @@ $cli->init = new InitCmd();
 $cli->clone = new CloneCmd();
 
 $application = ApplicationBuilder::fromSpecification($cli)
-    ->addHandler(GitCmd::class, function (GitCmd $cmd) {
-        dump($cmd);
+    ->prependMiddleware(new HelpMiddleware(new AsciiPrinter()))
+    ->addHandler(GitCmd::class, function (Context $ctx) {
         return 0;
     })
-    ->addHandler(InitCmd::class, function (InitCmd $cmd) {
-        dump($cmd);
+    ->addHandler(InitCmd::class, function (Context $ctx) {
+        dump($ctx->application());
         return 0;
     })
-    ->addHandler(CloneCmd::class, function (CloneCmd $cmd) {
-        println(sprintf('Git cloning %s...', $cmd->repo));
-        if ($cmd->recurseSubModules) {
+    ->addHandler(CloneCmd::class, function (
+        Context $ctx
+    ) {
+        println(sprintf('Git cloning %s...', $ctx->command()->repo));
+        if ($ctx->command()->recurseSubModules) {
             println('... and recursing submodules');
         }
         return 0;
     })
     ->build();
-;
-$application->run($argv);
+exit($application->run($argv));
 
 function println(string $message): void
 {
