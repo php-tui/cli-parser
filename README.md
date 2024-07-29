@@ -1,6 +1,8 @@
 CLI Parser and Handler
 ======================
 
+> warning: don't usr this, it's a failed experiment!
+
 Type safe CLI parser and command handler for PHP inspired by [Kong](https://github.com/alecthomas/kong).
 
 Features
